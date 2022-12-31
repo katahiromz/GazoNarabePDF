@@ -74,6 +74,15 @@
 #define IDS_PROCESSINGNOW                   182
 #define IDS_GENERATE                        183
 #define IDS_PAGENUMBER                      184
+#define IDS_FIELD_MARGIN                    185
+#define IDS_FIELD_ROWS                      186
+#define IDS_FIELD_COLUMNS                   187
+#define IDS_FIELD_FONT_SIZE                 188
+#define IDS_FIELD_OUTPUT_NAME               189
+#define IDS_REASON_ZERO_OR_MORE_REAL        190
+#define IDS_REASON_POSITIVE_INTEGER         191
+#define IDS_REASON_POSITIVE_REAL            192
+#define IDS_REASON_NON_EMPTY_STRING         193
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS

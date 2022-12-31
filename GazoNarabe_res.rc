@@ -93,7 +93,7 @@ STRINGTABLE
     IDS_OUTPUT_04, "写真一覧 <撮影日>"
     IDS_OUTPUT_05, "私のアルバム <今日>"
     IDS_OUTPUT_06, "実験結果 <撮影日>"
-    IDS_INVALIDSTRING, "不正な文字列です。"
+    IDS_INVALIDSTRING, "「%s」が不正な文字列です。\n\n%s"
     IDS_FILTER, "画像ファイル (*.jpg;*.gif;*.png;*.tif;*.bmp)|*.jpg;*.jpeg;*.jpe;*.gif;*.png;*.tif;*.tiff;*.bmp;*.dib|JPEG 画像ファイル (*.jpg;*.jpeg;*.jpe)|*.jpg;*.jpeg;*.jpe|GIF 画像ファイル (*.gif)|*.gif|PNG 画像ファイル (*.png)|*.png|TIFF 画像ファイル (*.tif;*.tiff)|*.tif;*.tiff|ビットマップ画像ファイル (*.bmp;*.dib)|*.bmp;*.dib|すべてのファイル (*.*)|*.*|"
     IDS_ADDPICTURE, "画像を追加する"
     IDS_64KB, "64 KB 以下"
@@ -143,6 +143,15 @@ STRINGTABLE
     IDS_PROCESSINGNOW, "処理中..."
     IDS_GENERATE, "PDF生成"
     IDS_PAGENUMBER, "ページ %u / %u"
+    IDS_FIELD_MARGIN, "ページ余白(mm)"
+    IDS_FIELD_ROWS, "1ページの行数"
+    IDS_FIELD_COLUMNS, "1ページの列数"
+    IDS_FIELD_FONT_SIZE, "フォントサイズ(pt)"
+    IDS_FIELD_OUTPUT_NAME, "出力ファイル名"
+    IDS_REASON_ZERO_OR_MORE_REAL, "ゼロ以上の実数を指定して下さい。"
+    IDS_REASON_POSITIVE_INTEGER, "正の整数を指定して下さい。"
+    IDS_REASON_POSITIVE_REAL, "正の実数を指定して下さい。"
+    IDS_REASON_NON_EMPTY_STRING, "空ではない文字列を指定して下さい。"
 }
 
 //////////////////////////////////////////////////////////////////////////////

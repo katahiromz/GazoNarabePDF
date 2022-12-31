@@ -170,10 +170,14 @@ LPCTSTR findLocalFile(LPCTSTR filename)
 }
 
 // 不正な文字列が入力された。
-void OnInvalidString(HWND hwnd, INT nItemID)
+void OnInvalidString(HWND hwnd, INT nItemID, INT nFieldId, INT nReasonId)
 {
     SetFocus(GetDlgItem(hwnd, nItemID));
-    MessageBox(hwnd, doLoadString(IDS_INVALIDSTRING), g_szAppName, MB_ICONERROR);
+    string_t field = doLoadString(nFieldId);
+    string_t reason = doLoadString(nReasonId);
+    TCHAR szText[512];
+    StringCchPrintf(szText, _countof(szText), doLoadString(IDS_INVALIDSTRING), field.c_str(), reason.c_str());
+    MessageBox(hwnd, szText, g_szAppName, MB_ICONERROR);
 }
 
 // コンボボックスのテキストを取得する。
@@ -378,6 +382,68 @@ BOOL GazoNarabe::DataFromDialog(HWND hwnd, BOOL bList)
     GET_CHECK_DATA(IDC_PAGE_NUMBERS);
     GET_CHECK_DATA(IDC_DONT_RESIZE_SMALL);
 #undef GET_CHECK_DATA
+
+    // 余白。ゼロ以上の実数を指定します。
+    {
+        auto& margin = SETTING(IDC_MARGIN);
+        LCMapString(GetUserDefaultLCID(), LCMAP_HALFWIDTH, margin.c_str(), -1, szText, _countof(szText));
+        WCHAR *endptr;
+        double value = wcstod(szText, &endptr);
+        if (*endptr != 0 || value < 0)
+        {
+            OnInvalidString(hwnd, IDC_MARGIN, IDS_FIELD_MARGIN, IDS_REASON_POSITIVE_REAL);
+            return FALSE;
+        }
+        margin = szText;
+    }
+    // 1ページの行数。正の自然数ですよね。
+    {
+        auto& rows = SETTING(IDC_ROWS);
+        LCMapString(GetUserDefaultLCID(), LCMAP_HALFWIDTH, rows.c_str(), -1, szText, _countof(szText));
+        WCHAR *endptr;
+        long value = wcstol(szText, &endptr, 10);
+        if (*endptr != 0 || value <= 0)
+        {
+            OnInvalidString(hwnd, IDC_ROWS, IDS_FIELD_ROWS, IDS_REASON_POSITIVE_INTEGER);
+            return FALSE;
+        }
+        rows = szText;
+    }
+    // 1ページの列数。正の自然数ですよね。
+    {
+        auto& columns = SETTING(IDC_COLUMNS);
+        LCMapString(GetUserDefaultLCID(), LCMAP_HALFWIDTH, columns.c_str(), -1, szText, _countof(szText));
+        WCHAR *endptr;
+        long value = wcstol(szText, &endptr, 10);
+        if (*endptr != 0 || value <= 0)
+        {
+            OnInvalidString(hwnd, IDC_COLUMNS, IDS_FIELD_COLUMNS, IDS_REASON_POSITIVE_INTEGER);
+            return FALSE;
+        }
+        columns = szText;
+    }
+    // フォントサイズ(pt)。ゼロや負ではありません。
+    {
+        auto& font_size = SETTING(IDC_FONT_SIZE);
+        LCMapString(GetUserDefaultLCID(), LCMAP_HALFWIDTH, font_size.c_str(), -1, szText, _countof(szText));
+        WCHAR *endptr;
+        double value = wcstod(szText, &endptr);
+        if (*endptr != 0 || value <= 0)
+        {
+            OnInvalidString(hwnd, IDC_FONT_SIZE, IDS_FIELD_FONT_SIZE, IDS_REASON_POSITIVE_REAL);
+            return FALSE;
+        }
+        font_size = szText;
+    }
+    // 出力ファイル名。空ではありません。
+    {
+        auto& output_name = SETTING(IDC_OUTPUT_NAME);
+        if (output_name.empty())
+        {
+            OnInvalidString(hwnd, IDC_OUTPUT_NAME, IDS_FIELD_OUTPUT_NAME, IDS_REASON_NON_EMPTY_STRING);
+            return FALSE;
+        }
+    }
 
     // リストボックスからデータを取得する。
     if (bList)
