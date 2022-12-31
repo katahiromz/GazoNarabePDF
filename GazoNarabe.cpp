@@ -1355,21 +1355,22 @@ void OnListSelectionChange(HWND hwnd)
 
     // 必要ならば、アスペクト比を維持したままの縮小後のサイズを計算する。
     BOOL bShrink = FALSE;
+#define SHRINK_SIZE 80
     if (width > height)
     {
-        if (width > 64)
+        if (width > SHRINK_SIZE)
         {
-            height = height * 64 / width;
-            width = 64;
+            height = height * SHRINK_SIZE / width;
+            width = SHRINK_SIZE;
             bShrink = TRUE;
         }
     }
     else
     {
-        if (height > 64)
+        if (height > SHRINK_SIZE)
         {
-            width = width * 64 / height;
-            height = 64;
+            width = width * SHRINK_SIZE / height;
+            height = SHRINK_SIZE;
             bShrink = TRUE;
         }
     }
