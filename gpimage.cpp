@@ -35,7 +35,8 @@ LPCWSTR gpimage_get_mime_from_filename(LPCWSTR filename)
     // MIMEを取得する。
     if (lstrcmpiW(dotext, L".jpg") == 0 ||
         lstrcmpiW(dotext, L".jpeg") == 0 ||
-        lstrcmpiW(dotext, L".jpe") == 0)
+        lstrcmpiW(dotext, L".jpe") == 0 ||
+        lstrcmpiW(dotext, L".jfif") == 0)
     {
         return L"image/jpeg";
     }
