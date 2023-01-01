@@ -12,7 +12,7 @@
 
 ## 対応画像形式
 
-- JPEG/PNG/GIF/TIFF/BMP
+- JPEG/PNG/GIF/TIFF/BMP/WMF/EMF/ICO
 
 ## 注意
 

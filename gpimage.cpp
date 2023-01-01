@@ -61,6 +61,21 @@ LPCWSTR gpimage_get_mime_from_filename(LPCWSTR filename)
         return L"image/tiff";
     }
 
+    if (lstrcmpiW(dotext, L".wmf") == 0)
+    {
+        return L"image/x-wmf";
+    }
+
+    if (lstrcmpiW(dotext, L".emf") == 0)
+    {
+        return L"image/x-emf";
+    }
+
+    if (lstrcmpiW(dotext, L".ico") == 0)
+    {
+        return L"image/vnd.microsoft.icon";
+    }
+
     return NULL;
 }
 

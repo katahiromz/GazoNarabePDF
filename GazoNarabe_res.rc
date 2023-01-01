@@ -94,7 +94,7 @@ STRINGTABLE
     IDS_OUTPUT_05, "私のアルバム <今日>"
     IDS_OUTPUT_06, "実験結果 <撮影日>"
     IDS_INVALIDSTRING, "「%s」が不正な文字列です。\n\n%s"
-    IDS_FILTER, "画像ファイル (*.jpg;*.gif;*.png;*.tif;*.bmp)|*.jpg;*.jpeg;*.jpe;*.jfif;*.gif;*.png;*.tif;*.tiff;*.bmp;*.dib|JPEG 画像 (*.jpg;*.jpeg;*.jpe;*.jfif)|*.jpg;*.jpeg;*.jpe;*.jfif|GIF 画像 (*.gif)|*.gif|PNG 画像 (*.png)|*.png|TIFF 画像 (*.tif;*.tiff)|*.tif;*.tiff|ビットマップ (*.bmp;*.dib)|*.bmp;*.dib|すべてのファイル (*.*)|*.*|"
+    IDS_FILTER, "画像ファイル (*.jpg;*.gif;*.png;*.tif;*.bmp;*.wmf;*.emf;*.ico)|*.jpg;*.jpeg;*.jpe;*.jfif;*.gif;*.png;*.tif;*.tiff;*.bmp;*.dib;*.wmf;*.emf;*.ico|JPEG 画像 (*.jpg;*.jpeg;*.jpe;*.jfif)|*.jpg;*.jpeg;*.jpe;*.jfif|GIF 画像 (*.gif)|*.gif|PNG 画像 (*.png)|*.png|TIFF 画像 (*.tif;*.tiff)|*.tif;*.tiff|ビットマップ (*.bmp;*.dib)|*.bmp;*.dib|WMF (*.wmf)|*.wmf|EMF (*.emf)|*.emf|アイコン ファイル (*.ico)|*.ico|すべてのファイル (*.*)|*.*|"
     IDS_ADDPICTURE, "画像を追加する"
     IDS_64KB, "64 KB 以下"
     IDS_128KB, "128 KB 以下"

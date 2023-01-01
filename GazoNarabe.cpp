@@ -908,14 +908,15 @@ bool hpdf_draw_image(HPDF_Doc pdf, HPDF_Page page, double x, double y, double wi
         return false;
 
     // JPEG/TIFFではないビットマップ画像については特別扱いで画像の品質を向上させることができる。
-    bool png_or_gif_or_bmp = false;
+    bool png_is_better = false;
     auto dotext = PathFindExtension(filename.c_str());
     if (lstrcmpi(dotext, TEXT(".png")) == 0 ||
         lstrcmpi(dotext, TEXT(".gif")) == 0 ||
         lstrcmpi(dotext, TEXT(".bmp")) == 0 ||
-        lstrcmpi(dotext, TEXT(".dib")) == 0)
+        lstrcmpi(dotext, TEXT(".dib")) == 0 ||
+        lstrcmpi(dotext, TEXT(".ico")) == 0)
     {
-        png_or_gif_or_bmp = true;
+        png_is_better = true;
     }
 
     TempFile tempfile;
@@ -924,7 +925,7 @@ bool hpdf_draw_image(HPDF_Doc pdf, HPDF_Page page, double x, double y, double wi
         file_size = 0;
 
         // 一時ファイルを作成し、画像を保存する。
-        if (png_or_gif_or_bmp)
+        if (png_is_better)
             tempfile.init(TEXT("GN2"), TEXT(".png"));
         else
             tempfile.init(TEXT("GN2"), TEXT(".jpg"));
@@ -971,7 +972,7 @@ bool hpdf_draw_image(HPDF_Doc pdf, HPDF_Page page, double x, double y, double wi
 
     // 画像を読み込む。
     HPDF_Image image;
-    if (png_or_gif_or_bmp)
+    if (png_is_better)
         image = HPDF_LoadPngImageFromFile(pdf, ansi_from_wide(CP_ACP, tempfile.get()));
     else
         image = HPDF_LoadJpegImageFromFile(pdf, ansi_from_wide(CP_ACP, tempfile.get()));
