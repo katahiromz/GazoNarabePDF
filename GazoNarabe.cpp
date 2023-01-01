@@ -2266,6 +2266,9 @@ DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 // ガゾーナラベのメイン関数。
 INT GazoNarabe_Main(HINSTANCE hInstance, INT argc, LPTSTR *argv)
 {
+    g_hInstance = hInstance;
+    InitCommonControls();
+
 #ifndef NO_SHAREWARE
     // デバッガ―が有効、またはシェアウェアを開始できないときは
     if (IsDebuggerPresent() || !g_shareware.Start(NULL))
@@ -2274,9 +2277,6 @@ INT GazoNarabe_Main(HINSTANCE hInstance, INT argc, LPTSTR *argv)
         return -1;
     }
 #endif
-
-    g_hInstance = hInstance;
-    InitCommonControls();
 
     GazoNarabe gn(hInstance, argc, argv);
     DialogBoxParam(hInstance, MAKEINTRESOURCE(1), NULL, DialogProc, (LPARAM)&gn);
