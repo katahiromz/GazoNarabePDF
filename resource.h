@@ -25,7 +25,7 @@
 #define IDS_OUTPUT_05                       133
 #define IDS_OUTPUT_06                       134
 #define IDS_INVALIDSTRING                   135
-#define IDS_FILTER                          136
+#define IDS_OPENFILTER                      136
 #define IDS_ADDPICTURE                      137
 #define IDS_64KB                            138
 #define IDS_128KB                           139
@@ -83,6 +83,7 @@
 #define IDS_REASON_POSITIVE_INTEGER         191
 #define IDS_REASON_POSITIVE_REAL            192
 #define IDS_REASON_NON_EMPTY_STRING         193
+#define IDS_SUSIE_IMAGES                    194
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS

@@ -17,6 +17,7 @@
 #include <hpdf.h>
 #include "TempFile.hpp"
 #include "gpimage.hpp"
+#include "Susie.hpp"
 #include "resource.h"
 
 #ifndef NO_SHAREWARE
@@ -58,6 +59,9 @@ enum
     IDC_ERASESETTINGS = psh5,
 };
 
+// Susieプラグイン マネジャー。
+SusiePluginManager g_susie;
+
 // ガゾーナラベPDFのメインクラス。
 class GazoNarabe
 {
@@ -70,23 +74,7 @@ public:
     std::vector<string_t> m_list;
 
     // コンストラクタ。
-    GazoNarabe(HINSTANCE hInstance, INT argc, LPTSTR *argv)
-        : m_hInstance(hInstance)
-        , m_argc(argc)
-        , m_argv(argv)
-        , m_hbmPreview(NULL)
-    {
-        // データをリセットする。
-        Reset();
-
-        // コマンドライン引数をリストに追加。
-        for (INT i = 1; i < m_argc; ++i)
-        {
-            // 有効な画像ファイルかを確認して追加。
-            if (IsValidImage(m_argv[i]))
-                m_list.push_back(m_argv[i]);
-        }
-    }
+    GazoNarabe(HINSTANCE hInstance, INT argc, LPTSTR *argv);
 
     // デストラクタ。
     ~GazoNarabe()
@@ -109,9 +97,6 @@ public:
 
     // メインディッシュ処理。
     string_t JustDoIt(HWND hwnd);
-
-    // 有効な画像ファイルかを確認する。
-    BOOL IsValidImage(const string_t& item) const;
 };
 
 // グローバル変数。
@@ -257,6 +242,77 @@ void validate_filename(string_t& filename)
     {
         if (wcschr(L"\\/:*?\"<>|", ch) != NULL)
             ch = L'_';
+    }
+}
+
+// 有効な画像ファイルかを確認する。
+bool isValidImageFile(const string_t& item)
+{
+    // 有効なファイルか？
+    LPCTSTR filename = item.c_str();
+    if (!PathFileExists(filename) || PathIsDirectory(filename))
+        return false;
+
+    // GDI+などで読み込める画像ファイルか？
+    if (gpimage_is_valid_extension(filename))
+        return true;
+
+    // Susie プラグインで読み込める画像ファイルか？
+    if (g_susie.is_loaded())
+    {
+        auto ansi = ansi_from_wide(CP_ACP, item.c_str());
+        auto dotext = PathFindExtensionA(ansi);
+        if (g_susie.is_dotext_supported(dotext))
+            return true;
+    }
+
+    return false; // 読み込めない。
+}
+
+// 画像を読み込む。
+HBITMAP
+doLoadPic(LPCWSTR filename, int* width = NULL, int* height = NULL,
+          FILETIME* pftCreated = NULL, FILETIME* pftModified = NULL)
+{
+    // GDI+などで読み込みを試みる。
+    HBITMAP hbm = gpimage_load(filename, width, height, pftCreated, pftModified);
+    if (hbm)
+        return hbm;
+
+    // Susieプラグインを試す。
+    auto ansi = ansi_from_wide(CP_ACP, filename);
+    hbm = g_susie.load_image(ansi);
+    if (hbm)
+    {
+        BITMAP bm;
+        GetObject(hbm, sizeof(bm), &bm);
+        if (width)
+            *width = bm.bmWidth;
+        if (height)
+            *height = bm.bmHeight;
+        gpimage_load_datetime(filename, pftCreated, pftModified);
+        return hbm;
+    }
+
+    return NULL; // 失敗。
+}
+
+// コンストラクタ。
+GazoNarabe::GazoNarabe(HINSTANCE hInstance, INT argc, LPTSTR *argv)
+    : m_hInstance(hInstance)
+    , m_argc(argc)
+    , m_argv(argv)
+    , m_hbmPreview(NULL)
+{
+    // データをリセットする。
+    Reset();
+
+    // コマンドライン引数をリストに追加。
+    for (INT i = 1; i < m_argc; ++i)
+    {
+        // 有効な画像ファイルかを確認して追加。
+        if (isValidImageFile(m_argv[i]))
+            m_list.push_back(m_argv[i]);
     }
 }
 
@@ -773,7 +829,7 @@ bool substitute_tags(string_t& str, const string_t& pathname,
     // 画像ファイルに関するメタデータを取得する。
     int image_width, image_height;
     FILETIME ftCreated, ftModified;
-    HBITMAP hbm = gpimage_load(pathname.c_str(), &image_width, &image_height, &ftCreated, &ftModified);
+    HBITMAP hbm = doLoadPic(pathname.c_str(), &image_width, &image_height, &ftCreated, &ftModified);
     if (hbm == NULL)
         return false;
     ::DeleteObject(hbm);
@@ -973,7 +1029,7 @@ bool hpdf_draw_image(HPDF_Doc pdf, HPDF_Page page, double x, double y, double wi
 
     // 画像をHBITMAPとして読み込む。
     int image_width, image_height;
-    HBITMAP hbm = gpimage_load(filename.c_str(), &image_width, &image_height);
+    HBITMAP hbm = doLoadPic(filename.c_str(), &image_width, &image_height);
     if (hbm == NULL)
         return false;
 
@@ -1431,16 +1487,6 @@ string_t GazoNarabe::JustDoIt(HWND hwnd)
     return ret;
 }
 
-// 有効な画像ファイルかを確認する。
-BOOL GazoNarabe::IsValidImage(const string_t& item) const
-{
-    LPCTSTR filename = item.c_str();
-    if (!PathFileExists(filename) || PathIsDirectory(filename))
-        return FALSE;
-
-    return gpimage_is_valid_extension(filename);
-}
-
 // リストの選択が変化した。
 void OnListSelectionChange(HWND hwnd)
 {
@@ -1482,7 +1528,7 @@ void OnListSelectionChange(HWND hwnd)
 
     // 画像を読み込み、画像のサイズを取得する。
     int width, height;
-    HBITMAP hbm = gpimage_load(szPath, &width, &height);
+    HBITMAP hbm = doLoadPic(szPath, &width, &height);
     if (!hbm) // 失敗。
     {
         // ビットマップをクリアする。
@@ -1583,6 +1629,16 @@ BOOL OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
     }
 #endif
 
+    // Susie プラグインを読み込む。
+    CHAR szPathA[MAX_PATH];
+    GetModuleFileNameA(NULL, szPathA, _countof(szPathA));
+    PathRemoveFileSpecA(szPathA);
+    if (!g_susie.load(szPathA))
+    {
+        PathAppendA(szPathA, "plugins");
+        g_susie.load(szPathA);
+    }
+
     return TRUE;
 }
 
@@ -1629,13 +1685,30 @@ void OnAdd(HWND hwnd)
     // 「ファイルを開く」ダイアログの初期化を開始する。
     OPENFILENAME ofn = { sizeof(ofn), hwnd };
 
-    // フィルター文字列を設定する。
-    string_t strFilter = doLoadString(IDS_FILTER);
+    // フィルター文字列をリソースから読み込む。
+    string_t strFilter = doLoadString(IDS_OPENFILTER);
+
+    // Susieプラグインのサポート。
+    if (g_susie.is_loaded())
+    {
+        std::string additional = g_susie.get_filter();
+        auto wide = wide_from_ansi(CP_ACP, additional.c_str());
+        strFilter += doLoadString(IDS_SUSIE_IMAGES);
+        strFilter += L" (";
+        strFilter += wide;
+        strFilter += L")|";
+        strFilter += wide;
+        strFilter += L"|";
+    }
+
+    // フィルター文字列をNULL区切りにする。
     for (auto& ch : strFilter)
     {
         if (ch == TEXT('|'))
             ch = 0;
     }
+
+    // フィルター文字列を設定する。
     ofn.lpstrFilter = strFilter.c_str();
 
     // ファイルパス名の設定。
@@ -1926,7 +1999,7 @@ void OnDropFiles(HWND hwnd, HDROP hdrop)
         DragQueryFile(hdrop, iFile, szFile, _countof(szFile));
 
         // 画像ファイルとして有効な拡張子のみ、追加。
-        if (gpimage_is_valid_extension(szFile))
+        if (isValidImageFile(szFile))
         {
             // リストボックスに項目を追加する。
             ListBox_AddString(hLst1, szFile);

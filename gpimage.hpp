@@ -17,3 +17,5 @@ HBITMAP gpimage_load(LPCWSTR filename, int* width = NULL, int* height = NULL,
 BOOL gpimage_save(LPCWSTR filename, HBITMAP hBitmap);
 // HBITMAPを拡大縮小する。
 HBITMAP gpimage_resize(HBITMAP hbmSrc, int width, int height);
+// ファイルの日付を取得する（撮影日時を除く）。
+BOOL gpimage_load_datetime(LPCWSTR filename, FILETIME* pftCreated = NULL, FILETIME* pftModified = NULL);

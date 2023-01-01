@@ -128,7 +128,7 @@ STRINGTABLE
     IDS_OUTPUT_05, "私のアルバム <今日>"
     IDS_OUTPUT_06, "実験結果 <撮影日>"
     IDS_INVALIDSTRING, "「%s」が不正な文字列です。\n\n%s"
-    IDS_FILTER, "画像ファイル (*.jpg;*.gif;*.png;*.tif;*.bmp;*.wmf;*.emf;*.ico;*.cur)|*.jpg;*.jpeg;*.jpe;*.jfif;*.gif;*.png;*.tif;*.tiff;*.bmp;*.dib;*.wmf;*.emf;*.ico;*.cur|JPEG 画像 (*.jpg;*.jpeg;*.jpe;*.jfif)|*.jpg;*.jpeg;*.jpe;*.jfif|GIF 画像 (*.gif)|*.gif|PNG 画像 (*.png)|*.png|TIFF 画像 (*.tif;*.tiff)|*.tif;*.tiff|ビットマップ (*.bmp;*.dib)|*.bmp;*.dib|WMF (*.wmf)|*.wmf|EMF (*.emf)|*.emf|アイコン ファイル (*.ico)|*.ico|カーソル ファイル (*.cur)|*.cur|すべてのファイル (*.*)|*.*|"
+    IDS_OPENFILTER, "画像ファイル (*.jpg;*.gif;*.png;*.tif;*.bmp;*.wmf;*.emf;*.ico;*.cur)|*.jpg;*.jpeg;*.jpe;*.jfif;*.gif;*.png;*.tif;*.tiff;*.bmp;*.dib;*.wmf;*.emf;*.ico;*.cur|JPEG 画像 (*.jpg;*.jpeg;*.jpe;*.jfif)|*.jpg;*.jpeg;*.jpe;*.jfif|GIF 画像 (*.gif)|*.gif|PNG 画像 (*.png)|*.png|TIFF 画像 (*.tif;*.tiff)|*.tif;*.tiff|ビットマップ (*.bmp;*.dib)|*.bmp;*.dib|WMF (*.wmf)|*.wmf|EMF (*.emf)|*.emf|アイコン ファイル (*.ico)|*.ico|カーソル ファイル (*.cur)|*.cur|すべてのファイル (*.*)|*.*|"
     IDS_ADDPICTURE, "画像を追加する"
     IDS_64KB, "64 KB 以下"
     IDS_128KB, "128 KB 以下"
@@ -186,6 +186,7 @@ STRINGTABLE
     IDS_REASON_POSITIVE_INTEGER, "正の整数を指定して下さい。"
     IDS_REASON_POSITIVE_REAL, "正の実数を指定して下さい。"
     IDS_REASON_NON_EMPTY_STRING, "空ではない文字列を指定して下さい。"
+    IDS_SUSIE_IMAGES, "Susie 画像"
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -135,6 +135,32 @@ BOOL gpimage_get_encoder_from_filename(LPCWSTR filename, CLSID *pClsid)
     return FALSE;
 }
 
+// ファイルの日付を取得する（撮影日時を除く）。
+BOOL gpimage_load_datetime(LPCWSTR filename, FILETIME* pftCreated, FILETIME* pftModified)
+{
+    if (pftCreated)
+        ZeroMemory(pftCreated, sizeof(*pftCreated));
+    if (pftModified)
+        ZeroMemory(pftModified, sizeof(*pftModified));
+
+    // ファイルの日時を読み込む。
+    WIN32_FIND_DATA find;
+    HANDLE hFind = FindFirstFile(filename, &find);
+    if (hFind != INVALID_HANDLE_VALUE)
+    {
+        FindClose(hFind);
+        // ファイル作成日時を取得する。
+        if (pftCreated)
+            ::FileTimeToLocalFileTime(&find.ftCreationTime, pftCreated);
+        // ファイル更新日時を取得する。
+        if (pftModified)
+            ::FileTimeToLocalFileTime(&find.ftLastWriteTime, pftModified);
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 // カーソルファイル(*.cur)をHBITMAPとして読み込む。
 HBITMAP gpimage_load_cursor(LPCWSTR filename, int* width, int* height, FILETIME* pftCreated, FILETIME* pftModified)
 {
@@ -201,18 +227,7 @@ HBITMAP gpimage_load_cursor(LPCWSTR filename, int* width, int* height, FILETIME*
     }
 
     // ファイルの日時を読み込む。
-    WIN32_FIND_DATA find;
-    HANDLE hFind = FindFirstFile(filename, &find);
-    if (hFind != INVALID_HANDLE_VALUE)
-    {
-        FindClose(hFind);
-        // ファイル作成日時を取得する。
-        if (pftCreated)
-            ::FileTimeToLocalFileTime(&find.ftCreationTime, pftCreated);
-        // ファイル更新日時を取得する。
-        if (pftModified)
-            ::FileTimeToLocalFileTime(&find.ftLastWriteTime, pftModified);
-    }
+    gpimage_load_datetime(filename, pftCreated, pftModified);
 
     // DCを破棄する。
     DeleteDC(hdc);
