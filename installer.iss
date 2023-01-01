@@ -46,11 +46,12 @@ Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
-Source: "C:\dev\GazoNarabeProject\GazoNarabePDF\build\GNPDF.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\dev\GazoNarabeProject\GazoNarabePDF\README.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\dev\GazoNarabeProject\GazoNarabePDF\LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\dev\GazoNarabeProject\GazoNarabePDF\HISTORY.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\dev\GazoNarabeProject\GazoNarabePDF\TAGS.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\GNPDF.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "README.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "HISTORY.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "TAGS.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "fontmap.dat"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

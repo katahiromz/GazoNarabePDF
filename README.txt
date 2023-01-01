@@ -18,7 +18,6 @@
 ## 注意
 
 - ユーザー名に機種依存文字が含まれている場合はサポート対象外です。
-- シフトJISとの下位互換性のため、機種依存文字の出力はサポートされておりません。
 - Web標準ではないファイル形式には脆弱性がある恐れがあります。Susieプラグインの使用は推奨されません。
 
 ## 使用許諾
@@ -31,6 +30,6 @@
 
 ## 連絡先
 
-Twitter @katahiromz か電子メール katayama.hirofumi.mz@gmail.com でご連絡下さい。
+電子メール katayama.hirofumi.mz@gmail.com でご連絡下さい。
 
 ホームページ：https://katahiromz.web.fc2.com/

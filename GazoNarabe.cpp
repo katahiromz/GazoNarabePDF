@@ -24,6 +24,8 @@
     #include "Shareware.hpp"
 #endif
 
+#define UTF8_SUPPORT // UTF-8サポート。
+
 // 文字列クラス。
 #ifdef UNICODE
     typedef std::wstring string_t;
@@ -62,6 +64,13 @@ enum
 // Susieプラグイン マネジャー。
 SusiePluginManager g_susie;
 
+struct FONT_ENTRY
+{
+    string_t m_font_name;
+    string_t m_pathname;
+    int m_index = -1;
+};
+
 // ガゾーナラベPDFのメインクラス。
 class GazoNarabe
 {
@@ -72,6 +81,7 @@ public:
     HBITMAP m_hbmPreview;
     std::map<string_t, string_t> m_settings;
     std::vector<string_t> m_list;
+    std::vector<FONT_ENTRY> m_font_map;
 
     // コンストラクタ。
     GazoNarabe(HINSTANCE hInstance, INT argc, LPTSTR *argv);
@@ -82,6 +92,8 @@ public:
         ::DeleteObject(m_hbmPreview);
     }
 
+    // フォントマップを読み込む。
+    BOOL LoadFontMap();
     // データをリセットする。
     void Reset();
     // ダイアログを初期化する。
@@ -211,7 +223,21 @@ BOOL setComboText(HWND hwnd, INT id, LPCTSTR text)
 LPSTR ansi_from_wide(UINT codepage, LPCWSTR wide)
 {
     static CHAR s_ansi[1024];
-    WideCharToMultiByte(codepage, 0, wide, -1, s_ansi, _countof(s_ansi), NULL, NULL);
+
+    // コードページで表示できない文字はゲタ文字（〓）にする。
+    static const char utf8_geta[] = "\xE3\x80\x93";
+    static const char cp932_geta[] = "\x81\xAC";
+    const char *geta = NULL;
+    if (codepage == CP_ACP || codepage == CP932)
+    {
+        geta = cp932_geta;
+    }
+    else if (codepage == CP_UTF8)
+    {
+        geta = utf8_geta;
+    }
+
+    WideCharToMultiByte(codepage, 0, wide, -1, s_ansi, _countof(s_ansi), geta, NULL);
     return s_ansi;
 }
 
@@ -246,10 +272,9 @@ void validate_filename(string_t& filename)
 }
 
 // 有効な画像ファイルかを確認する。
-bool isValidImageFile(const string_t& item)
+bool isValidImageFile(LPCTSTR filename)
 {
     // 有効なファイルか？
-    LPCTSTR filename = item.c_str();
     if (!PathFileExists(filename) || PathIsDirectory(filename))
         return false;
 
@@ -260,7 +285,7 @@ bool isValidImageFile(const string_t& item)
     // Susie プラグインで読み込める画像ファイルか？
     if (g_susie.is_loaded())
     {
-        auto ansi = ansi_from_wide(CP_ACP, item.c_str());
+        auto ansi = ansi_from_wide(CP_ACP, filename);
         auto dotext = PathFindExtensionA(ansi);
         if (g_susie.is_dotext_supported(dotext))
             return true;
@@ -311,6 +336,81 @@ doLoadPic(LPCWSTR filename, int* width = NULL, int* height = NULL,
     return NULL; // 失敗。
 }
 
+// フォントマップを読み込む。
+BOOL GazoNarabe::LoadFontMap()
+{
+    // 初期化する。
+    m_font_map.clear();
+
+    // ローカルファイルの「fontmap.dat」を探す。
+    auto filename = findLocalFile(TEXT("fontmap.dat"));
+    if (filename == NULL)
+        return FALSE; // 見つからなかった。
+
+    // ファイル「fontmap.dat」を開く。
+    if (FILE *fp = _tfopen(filename, TEXT("rb")))
+    {
+        // 一行ずつ読み込む。
+        char buf[256];
+        while (fgets(buf, _countof(buf), fp))
+        {
+            // 前後の空白を取り除く。
+            StrTrimA(buf, " \t\r\n");
+
+            // 行コメントを削除する。
+            if (auto pch = strchr(buf, ';'))
+            {
+                *pch = 0;
+            }
+
+            // 「=」を探す。
+            if (auto pch = strchr(buf, '='))
+            {
+                // 文字列を切り分ける。
+                *pch++ = 0;
+                auto utf8_font_name = buf;
+                auto utf8_font_file = pch;
+
+                // 「,」があればインデックスを読み込み、切り分ける。
+                pch = strchr(pch, ',');
+                int index = -1;
+                if (pch)
+                {
+                    *pch++ = 0;
+                    index = atoi(pch);
+                }
+                // 切り分けた文字列。
+                string_t font_name = wide_from_ansi(CP_UTF8, utf8_font_name);
+                string_t font_file = wide_from_ansi(CP_UTF8, utf8_font_file);
+
+                // フォントファイルのパスファイル名を構築する。
+                TCHAR font_pathname[MAX_PATH];
+                GetWindowsDirectory(font_pathname, _countof(font_pathname));
+                PathAppend(font_pathname, TEXT("Fonts"));
+                PathAppend(font_pathname, font_file.c_str());
+
+                // パスファイル名が存在するか？
+                if (PathFileExists(font_pathname))
+                {
+                    // 存在すれば、フォントのエントリーを追加。
+                    FONT_ENTRY entry;
+                    entry.m_font_name = font_name;
+                    entry.m_pathname = font_pathname;
+                    entry.m_index = index;
+                    m_font_map.push_back(entry);
+                }
+            }
+        }
+
+        // ファイルを閉じる。
+        fclose(fp);
+
+        return m_font_map.size() > 0;
+    }
+
+    return FALSE;
+}
+
 // コンストラクタ。
 GazoNarabe::GazoNarabe(HINSTANCE hInstance, INT argc, LPTSTR *argv)
     : m_hInstance(hInstance)
@@ -320,6 +420,9 @@ GazoNarabe::GazoNarabe(HINSTANCE hInstance, INT argc, LPTSTR *argv)
 {
     // データをリセットする。
     Reset();
+
+    // フォントマップを読み込む。
+    LoadFontMap();
 
     // コマンドライン引数をリストに追加。
     for (INT i = 1; i < m_argc; ++i)
@@ -385,10 +488,20 @@ void GazoNarabe::InitDialog(HWND hwnd)
     SendDlgItemMessage(hwnd, IDC_COLUMNS, CB_ADDSTRING, 0, (LPARAM)TEXT("5"));
 
     // IDC_FONT_NAME: フォント名。
-    SendDlgItemMessage(hwnd, IDC_FONT_NAME, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_FONT_01));
-    SendDlgItemMessage(hwnd, IDC_FONT_NAME, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_FONT_02));
-    SendDlgItemMessage(hwnd, IDC_FONT_NAME, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_FONT_03));
-    SendDlgItemMessage(hwnd, IDC_FONT_NAME, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_FONT_04));
+    if (m_font_map.size())
+    {
+        for (auto& entry : m_font_map)
+        {
+            SendDlgItemMessage(hwnd, IDC_FONT_NAME, CB_ADDSTRING, 0, (LPARAM)entry.m_font_name.c_str());
+        }
+    }
+    else
+    {
+        SendDlgItemMessage(hwnd, IDC_FONT_NAME, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_FONT_01));
+        SendDlgItemMessage(hwnd, IDC_FONT_NAME, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_FONT_02));
+        SendDlgItemMessage(hwnd, IDC_FONT_NAME, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_FONT_03));
+        SendDlgItemMessage(hwnd, IDC_FONT_NAME, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_FONT_04));
+    }
 
     // IDC_FONT_SIZE: フォントサイズ(pt)。
     SendDlgItemMessage(hwnd, IDC_FONT_SIZE, CB_ADDSTRING, 0, (LPARAM)TEXT("10"));
@@ -1234,8 +1347,14 @@ string_t GazoNarabe::JustDoIt(HWND hwnd)
         // エンコーディング 90ms-RKSJ-H, 90ms-RKSJ-V, 90msp-RKSJ-H, EUC-H, EUC-V が利用可能となる
         HPDF_UseJPEncodings(pdf);
 
+#ifdef UTF8_SUPPORT
+        // エンコーディング "UTF-8" が利用可能に？？？
+        HPDF_UseUTFEncodings(pdf);
+        HPDF_SetCurrentEncoder(pdf, "UTF-8");
+#endif
+
         // 日本語フォントの MS-(P)Mincyo, MS-(P)Gothic が利用可能となる
-        HPDF_UseJPFonts(pdf);
+        //HPDF_UseJPFonts(pdf);
 
         // 用紙の向き。
         HPDF_PageDirection direction;
@@ -1278,16 +1397,39 @@ string_t GazoNarabe::JustDoIt(HWND hwnd)
 
         // フォント名。
         string_t font_name;
-        if (SETTING(IDC_FONT_NAME) == doLoadString(IDS_FONT_01))
-            font_name = TEXT("MS-PGothic");
-        else if (SETTING(IDC_FONT_NAME) == doLoadString(IDS_FONT_02))
-            font_name = TEXT("MS-PMincho");
-        else if (SETTING(IDC_FONT_NAME) == doLoadString(IDS_FONT_03))
-            font_name = TEXT("MS-Gothic");
-        else if (SETTING(IDC_FONT_NAME) == doLoadString(IDS_FONT_04))
-            font_name = TEXT("MS-Mincho");
+        if (m_font_map.size())
+        {
+            for (auto& entry : m_font_map)
+            {
+                if (entry.m_font_name != SETTING(IDC_FONT_NAME))
+                    continue;
+
+                auto ansi = ansi_from_wide(CP_ACP, entry.m_pathname.c_str());
+                if (entry.m_index != -1)
+                {
+                    std::string font_name_a = HPDF_LoadTTFontFromFile2(pdf, ansi, entry.m_index, HPDF_TRUE);
+                    font_name = wide_from_ansi(CP_UTF8, font_name_a.c_str());
+                }
+                else
+                {
+                    std::string font_name_a = HPDF_LoadTTFontFromFile(pdf, ansi, HPDF_TRUE);
+                    font_name = wide_from_ansi(CP_UTF8, font_name_a.c_str());
+                }
+            }
+        }
         else
-            font_name = TEXT("MS-PGothic");
+        {
+            if (SETTING(IDC_FONT_NAME) == doLoadString(IDS_FONT_01))
+                font_name = TEXT("MS-PGothic");
+            else if (SETTING(IDC_FONT_NAME) == doLoadString(IDS_FONT_02))
+                font_name = TEXT("MS-PMincho");
+            else if (SETTING(IDC_FONT_NAME) == doLoadString(IDS_FONT_03))
+                font_name = TEXT("MS-Gothic");
+            else if (SETTING(IDC_FONT_NAME) == doLoadString(IDS_FONT_04))
+                font_name = TEXT("MS-Mincho");
+            else
+                font_name = TEXT("MS-PGothic");
+        }
 
         // フォントサイズ（pt）。
         double font_size = _wtof(SETTING(IDC_FONT_SIZE).c_str());
@@ -1360,13 +1502,21 @@ string_t GazoNarabe::JustDoIt(HWND hwnd)
 
                 // フォントを指定する。
                 auto font_name_a = ansi_from_wide(CP932, font_name.c_str());
+#ifdef UTF8_SUPPORT
+                font = HPDF_GetFont(pdf, font_name_a, "UTF-8");
+#else
                 font = HPDF_GetFont(pdf, font_name_a, "90ms-RKSJ-H");
+#endif
 
 #ifndef NO_SHAREWARE
                 // ロゴ文字列を描画する。
                 if (!g_shareware.IsRegistered())
                 {
+#ifdef UTF8_SUPPORT
+                    auto logo_a = ansi_from_wide(CP_UTF8, g_szAppName);
+#else
                     auto logo_a = ansi_from_wide(CP932, g_szAppName);
+#endif
                     double logo_x = content_x, logo_y = content_y;
 
                     // フォントとフォントサイズを指定。
@@ -1387,7 +1537,11 @@ string_t GazoNarabe::JustDoIt(HWND hwnd)
                     TCHAR footer_text[128];
                     StringCchPrintf(footer_text, _countof(footer_text),
                                     doLoadString(IDS_PAGENUMBER), (iPage + 1), cPages);
+#ifdef UTF8_SUPPORT
+                    auto footer_text_a = ansi_from_wide(CP_UTF8, footer_text);
+#else
                     auto footer_text_a = ansi_from_wide(CP932, footer_text);
+#endif
                     hpdf_draw_text(page, font, footer_height, footer_text_a,
                                    content_x, content_y,
                                    content_width, footer_height);
@@ -1429,7 +1583,11 @@ string_t GazoNarabe::JustDoIt(HWND hwnd)
                 substitute_tags(text, m_list[iItem], iItem, cItems, iPage, cPages);
 
                 // ANSI文字列に変換してテキストを描画する。
+#ifdef UTF8_SUPPORT
+                auto text_a = ansi_from_wide(CP_UTF8, text.c_str());
+#else
                 auto text_a = ansi_from_wide(CP932, text.c_str());
+#endif
                 hpdf_draw_text(page, font, font_size, text_a, cell_x, cell_y, cell_width, font_size);
 
                 // セルのサイズを縮小する。
