@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "ガゾーナラベPDF"
-#define MyAppVersion "0.9.4"
+#define MyAppVersion "0.9.5"
 #define MyAppPublisher "片山博文MZ"
 #define MyAppURL "https://katahiromz.web.fc2.com/"
 #define MyAppExeName "GNPDF.exe"

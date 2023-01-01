@@ -20,6 +20,13 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 1 ICON "res/Icon_1.ico"
 
 //////////////////////////////////////////////////////////////////////////////
+// RT_MANIFEST
+
+#ifndef MSVC
+1 24 "res/Manifest_1.manifest"
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
 
 LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 
@@ -27,7 +34,7 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 // RT_DIALOG
 
 1 DIALOG 0, 0, 340, 210
-CAPTION "ガゾーナラベPDF Ver. 0.9.4"
+CAPTION "ガゾーナラベPDF Ver. 0.9.5"
 STYLE DS_CENTER | DS_MODALFRAME | WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX
 FONT 9, "メイリオ"
 {
@@ -65,6 +72,33 @@ FONT 9, "メイリオ"
     PUSHBUTTON "終了", IDCANCEL, 290, 190, 45, 15
     PUSHBUTTON "設定の初期化", psh5, 275, 115, 60, 15
     CONTROL "", ico1, "STATIC", SS_REALSIZEIMAGE | SS_BITMAP | WS_GROUP, 275, 135, 60, 50
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// RT_VERSION
+
+1 VERSIONINFO
+FILEVERSION     0, 9, 5, 0
+PRODUCTVERSION  0, 9, 5, 0
+FILEOS          0x40004
+FILETYPE        0x1
+{
+    BLOCK "StringFileInfo"
+    {
+        BLOCK "041103A4"
+        {
+            VALUE "CompanyName", "Katayama Hirofumi MZ\0"
+            VALUE "FileDescription", "画像を並べてPDF作成\0"
+            VALUE "FileVersion", "0.9.5\0"
+            VALUE "LegalCopyright", "(c) 2022 katahiromz\0"
+            VALUE "ProductName", "ガゾーナラベPDF\0"
+            VALUE "ProductVersion", "0.9.5\0"
+        }
+    }
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x0411, 0x03A4
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////

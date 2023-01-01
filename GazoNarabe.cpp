@@ -127,7 +127,7 @@ SW_Shareware g_shareware(
     "e218f83f070a186f886c6dc82bd7ecf3d6c3ea4224fd7d213aa06e9c9713b395",
     /* trial days */                10,
     /* salt string */               "mJpDxx2D",
-    /* version string */            "0.9.4");
+    /* version string */            "0.9.5");
 
 // リソース文字列を読み込む。
 LPTSTR doLoadString(INT nID)
