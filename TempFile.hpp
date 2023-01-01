@@ -1,23 +1,27 @@
+// TempFile.hpp --- 一時ファイルを自動化する by katahiromz
 #pragma once
 
-#include <strsafe.h>
-#include <cassert>
+#include <strsafe.h> // 文字列を安全に扱う関数(StringCc*)。
+#include <cassert> // assertマクロ。
 
+// 一時ファイルを扱うクラス。
 class TempFile
 {
 protected:
     DWORD m_old_value;
-    TCHAR m_tempfile[MAX_PATH];
-    TCHAR m_temppath[MAX_PATH];
-    TCHAR m_prefix[4];
-    TCHAR m_dot_ext[8];
+    TCHAR m_tempfile[MAX_PATH]; // ファイル名。
+    TCHAR m_temppath[MAX_PATH]; // パスファイル名。
+    TCHAR m_prefix[4]; // プレフィックス。
+    TCHAR m_dot_ext[8]; // 拡張子（ドットで始まる）。
 
+    // ファイル名を多様にするための調味料。
     DWORD get_salt()
     {
+        // 現在の時刻データを利用する。
         SYSTEMTIME st;
         ::GetLocalTime(&st);
 
-        DWORD dw = m_old_value;
+        DWORD dw = m_old_value; // 古い値も利用する。
         dw += st.wYear;
         dw += st.wMonth;
         dw += st.wDay;
@@ -25,26 +29,31 @@ protected:
         dw += st.wMinute;
         dw += st.wSecond;
         dw += st.wMilliseconds;
-        m_old_value = dw;
-        return LOWORD(dw) ^ HIWORD(dw);
+        m_old_value = dw; // 値を保存する。
+        return LOWORD(dw) ^ HIWORD(dw); // 値は符号なし2バイト整数の範囲。
     }
 
 public:
+    // コンストラクタ。
     TempFile() : m_old_value(::GetTickCount())
     {
         m_tempfile[0] = m_temppath[0] = m_prefix[0] = m_dot_ext[0] = 0;
     }
 
+    // コンストラクタ。
     TempFile(LPCTSTR prefix, LPCTSTR dot_ext) : m_old_value(::GetTickCount())
     {
         init(prefix, dot_ext);
     }
 
+    // デストラクタ。
     ~TempFile()
     {
+        // 自動的に削除する。
         erase();
     }
 
+    // 初期化。第一引数はプレフィックス。第二引数は拡張子。
     void init(LPCTSTR prefix, LPCTSTR dot_ext)
     {
         m_tempfile[0] = 0;
@@ -54,6 +63,7 @@ public:
         assert(dot_ext[0] == TEXT('.') || dot_ext[0] == 0);
     }
 
+    // 一時ファイルを作成し、パスファイル名を返す。
     LPCTSTR make()
     {
         for (UINT i = 0; i < 1000; ++i)
@@ -75,6 +85,7 @@ public:
         return NULL;
     }
 
+    // パスファイル名を返す。
     LPCTSTR get() const
     {
         assert(m_tempfile[0] != 0); // make first!
@@ -85,12 +96,14 @@ public:
         return NULL;
     }
 
+    // 一時ファイルを削除する。
     void erase()
     {
         if (m_tempfile[0])
             ::DeleteFile(m_tempfile);
     }
 
+    // 名前をクリアする。削除されてなければこのクラスは一時ファイルを削除しない。
     void clear()
     {
         m_tempfile[0] = 0;
