@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <windowsx.h>
 #include <gdiplus.h>
 #include <shlwapi.h>
 #pragma comment(lib, "gdiplus.lib")
@@ -83,6 +84,12 @@ LPCWSTR gpimage_get_mime_from_filename(LPCWSTR filename)
         return L"image/vnd.microsoft.icon";
     }
 
+    // CUR
+    if (lstrcmpiW(dotext, L".cur") == 0)
+    {
+        return L"application/octet-stream";
+    }
+
     return NULL; // 失敗。
 }
 
@@ -128,9 +135,100 @@ BOOL gpimage_get_encoder_from_filename(LPCWSTR filename, CLSID *pClsid)
     return FALSE;
 }
 
+// カーソルファイル(*.cur)をHBITMAPとして読み込む。
+HBITMAP gpimage_load_cursor(LPCWSTR filename, int* width, int* height, FILETIME* pftCreated, FILETIME* pftModified)
+{
+    // 初期化する。
+    if (width)
+        *width = 0;
+    if (height)
+        *height = 0;
+    if (pftCreated)
+        ZeroMemory(pftCreated, sizeof(*pftCreated));
+    if (pftModified)
+        ZeroMemory(pftModified, sizeof(*pftModified));
+
+    // カーソルファイルを読み込む。
+    HCURSOR hCursor = ::LoadCursorFromFile(filename);
+    if (hCursor == NULL)
+    {
+        return NULL;
+    }
+
+    // カーソルの情報を取得する。
+    ICONINFO ii;
+    if (!::GetIconInfo((HICON)hCursor, &ii))
+    {
+        ::DestroyCursor(hCursor);
+        return NULL;
+    }
+
+    // ii.hbmColorから情報を取得する。
+    BITMAP bm;
+    GetObject(ii.hbmMask, sizeof(bm), &bm);
+    bm.bmHeight /= 2; // 2倍の高さを1倍に。
+    if (width)
+        *width = bm.bmWidth;
+    if (height)
+        *height = bm.bmHeight;
+
+    // ビットマップを破棄する。
+    DeleteObject(ii.hbmMask);
+    DeleteObject(ii.hbmColor);
+
+    // 互換DCを作成する。
+    HDC hdc = CreateCompatibleDC(NULL);
+
+    // 24BPPのビットマップオブジェクトを作成する。
+    BITMAPINFO bmi;
+    ZeroMemory(&bmi, sizeof(bmi));
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = bm.bmWidth;
+    bmi.bmiHeader.biHeight = bm.bmHeight;
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 24;
+    HBITMAP hbm = CreateDIBSection(hdc, &bmi, DIB_RGB_COLORS, NULL, NULL, 0);
+    if (hbm)
+    {
+        // ビットマップを選択する。
+        HGDIOBJ hbmOld = SelectObject(hdc, hbm);
+
+        // カーソルを描画する。
+        DrawIconEx(hdc, 0, 0, (HICON)hCursor, bm.bmWidth, bm.bmHeight, 0, GetStockBrush(WHITE_BRUSH), DI_NORMAL);
+
+        // ビットマップの選択を解除する。
+        SelectObject(hdc, hbmOld);
+    }
+
+    // ファイルの日時を読み込む。
+    WIN32_FIND_DATA find;
+    HANDLE hFind = FindFirstFile(filename, &find);
+    if (hFind != INVALID_HANDLE_VALUE)
+    {
+        FindClose(hFind);
+        // ファイル作成日時を取得する。
+        if (pftCreated)
+            ::FileTimeToLocalFileTime(&find.ftCreationTime, pftCreated);
+        // ファイル更新日時を取得する。
+        if (pftModified)
+            ::FileTimeToLocalFileTime(&find.ftLastWriteTime, pftModified);
+    }
+
+    // DCを破棄する。
+    DeleteDC(hdc);
+
+    return hbm;
+}
+
 // 画像をHBITMAPとして読み込む。
 HBITMAP gpimage_load(LPCWSTR filename, int* width, int* height, FILETIME* pftCreated, FILETIME* pftModified)
 {
+    // カーソルの拡張子ならばカーソルとして読み込む。
+    if (lstrcmpiW(PathFindExtensionW(filename), L".cur") == 0)
+    {
+        return gpimage_load_cursor(filename, width, height, pftCreated, pftModified);
+    }
+
     HBITMAP hBitmap = NULL;
  
     // 画像を読み込む
