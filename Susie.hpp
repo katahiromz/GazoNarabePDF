@@ -2,11 +2,11 @@
 #pragma once
 
 #ifndef _INC_WINDOWS
-    #include <windows.h>
+    #include <windows.h> // Windowsの標準ヘッダ。
 #endif
 
-#include <string>
-#include <vector>
+#include <string> // std::string, std::wstring
+#include <vector> // std::vector
 
 class SusiePlugin;
 class SusiePluginManager;
