@@ -1496,6 +1496,28 @@ void OnListSelectionChange(HWND hwnd)
     // リストボックス。
     HWND hLst1 = GetDlgItem(hwnd, lst1);
 
+    // 横スクロール可能な幅を設定する。
+    INT cItems = ListBox_GetCount(hLst1);
+    TCHAR szText[1024];
+    HFONT hFont = GetWindowFont(hLst1);
+    HDC hDC = GetDC(hLst1);
+    HGDIOBJ hFontOld = SelectObject(hDC, hFont);
+    INT cxMax = 0;
+    for (INT iItem = 0; iItem < cItems; ++iItem)
+    {
+        if (ListBox_GetTextLen(hLst1, iItem) < _countof(szText))
+        {
+            ListBox_GetText(hLst1, iItem, szText);
+            SIZE siz;
+            GetTextExtentPoint32(hDC, szText, lstrlen(szText), &siz);
+            if (cxMax < siz.cx)
+                cxMax = siz.cx;
+        }
+    }
+    SelectObject(hDC, hFontOld);
+    ReleaseDC(hLst1, hDC);
+    ListBox_SetHorizontalExtent(hLst1, cxMax + 16);
+
     INT cSelected = ListBox_GetSelCount(hLst1);
     if (cSelected == LB_ERR || cSelected == 0) // 選択されてない。
     {
