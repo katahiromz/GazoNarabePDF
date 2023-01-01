@@ -1,25 +1,26 @@
 // ガゾーナラベPDF by katahiromz
 // Copyright (C) 2022-2023 片山博文MZ. All Rights Reserved.
 // See README.txt and LICENSE.txt.
-#include <windows.h>
-#include <windowsx.h>
-#include <commctrl.h>
-#include <commdlg.h>
-#include <shlobj.h>
-#include <shlwapi.h>
-#include <tchar.h>
-#include <strsafe.h>
-#include <string>
-#include <vector>
-#include <map>
-#include <stdexcept>
-#include <cassert>
-#include <hpdf.h>
-#include "TempFile.hpp"
-#include "gpimage.hpp"
-#include "Susie.hpp"
-#include "resource.h"
+#include <windows.h>        // Windowsの標準ヘッダ。
+#include <windowsx.h>       // Windowsのマクロヘッダ。
+#include <commctrl.h>       // 共通コントロールのヘッダ。
+#include <commdlg.h>        // 共通ダイアログのヘッダ。
+#include <shlobj.h>         // シェルAPIのヘッダ。
+#include <shlwapi.h>        // シェル軽量APIのヘッダ。
+#include <tchar.h>          // ジェネリックテキストマッピング用のヘッダ。
+#include <strsafe.h>        // 安全な文字列操作用のヘッダ (StringC*)
+#include <string>           // std::string および std::wstring クラス。
+#include <vector>           // std::vector クラス。
+#include <map>              // std::map クラス。
+#include <stdexcept>        // std::runtime_error クラス。
+#include <cassert>          // assertマクロ。
+#include <hpdf.h>           // PDF出力用のライブラリlibharuのヘッダ。
+#include "TempFile.hpp"     // 一時ファイル操作用のヘッダ。
+#include "gpimage.hpp"      // GDI+を用いた画像ファイル入出力ライブラリ。
+#include "Susie.hpp"        // Susieプラグインサポート。
+#include "resource.h"       // リソースIDの定義ヘッダ。
 
+// シェアウェア情報。
 #ifndef NO_SHAREWARE
     #include "Shareware.hpp"
 
@@ -1509,7 +1510,7 @@ string_t GazoNarabe::JustDoIt(HWND hwnd)
 #endif
 
 #ifndef NO_SHAREWARE
-                // ロゴ文字列を描画する。
+                // シェアウェア未登録ならば、ロゴ文字列を描画する。
                 if (!g_shareware.IsRegistered())
                 {
 #ifdef UTF8_SUPPORT
@@ -2269,7 +2270,7 @@ INT GazoNarabe_Main(HINSTANCE hInstance, INT argc, LPTSTR *argv)
     // アプリのインスタンスを保持する。
     g_hInstance = hInstance;
 
-    // コモンコントロール群を初期化する。
+    // 共通コントロール群を初期化する。
     InitCommonControls();
 
 #ifndef NO_SHAREWARE
