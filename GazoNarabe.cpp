@@ -166,7 +166,7 @@ LPCTSTR findLocalFile(LPCTSTR filename)
     if (PathFileExists(szPath))
         return szPath;
 
-    return NULL;
+    return NULL; // 見つからなかった。
 }
 
 // 不正な文字列が入力された。
@@ -175,7 +175,7 @@ void OnInvalidString(HWND hwnd, INT nItemID, INT nFieldId, INT nReasonId)
     SetFocus(GetDlgItem(hwnd, nItemID));
     string_t field = doLoadString(nFieldId);
     string_t reason = doLoadString(nReasonId);
-    TCHAR szText[512];
+    TCHAR szText[256];
     StringCchPrintf(szText, _countof(szText), doLoadString(IDS_INVALIDSTRING), field.c_str(), reason.c_str());
     MessageBox(hwnd, szText, g_szAppName, MB_ICONERROR);
 }
@@ -187,30 +187,38 @@ BOOL getComboText(HWND hwnd, INT id, LPTSTR text, INT cchMax)
 
     HWND hCombo = GetDlgItem(hwnd, id);
     INT iSel = ComboBox_GetCurSel(hCombo);
-    if (iSel == CB_ERR)
+    if (iSel == CB_ERR) // コンボボックスに選択項目がなければ
     {
+        // そのままテキストを取得する。
         ComboBox_GetText(hCombo, text, cchMax);
     }
     else
     {
-        text[0] = 0;
+        // リストからテキストを取得する。長さのチェックあり。
         if (ComboBox_GetLBTextLen(hCombo, iSel) >= cchMax)
+        {
             StringCchCopy(text, cchMax, doLoadString(IDS_TEXTTOOLONG));
+            return FALSE;
+        }
         else
+        {
             ComboBox_GetLBText(hCombo, iSel, text);
+        }
     }
+
     return TRUE;
 }
 
 // コンボボックスのテキストを設定する。
 BOOL setComboText(HWND hwnd, INT id, LPCTSTR text)
 {
+    // テキストに一致する項目を取得する。
     HWND hCombo = GetDlgItem(hwnd, id);
     INT iItem = ComboBox_FindStringExact(hCombo, -1, text);
-    if (iItem == CB_ERR)
-        ComboBox_SetText(hCombo, text);
+    if (iItem == CB_ERR) // 一致する項目がなければ
+        ComboBox_SetText(hCombo, text); // そのままテキストを設定。
     else
-        ComboBox_SetCurSel(hCombo, iItem);
+        ComboBox_SetCurSel(hCombo, iItem); // 一致する項目を選択。
     return TRUE;
 }
 
@@ -392,6 +400,7 @@ BOOL GazoNarabe::DataFromDialog(HWND hwnd, BOOL bList)
         if (*endptr != 0 || value < 0)
         {
             OnInvalidString(hwnd, IDC_MARGIN, IDS_FIELD_MARGIN, IDS_REASON_POSITIVE_REAL);
+            SETTING(IDC_MARGIN) = TEXT("8");
             return FALSE;
         }
         margin = szText;
@@ -405,6 +414,7 @@ BOOL GazoNarabe::DataFromDialog(HWND hwnd, BOOL bList)
         if (*endptr != 0 || value <= 0)
         {
             OnInvalidString(hwnd, IDC_ROWS, IDS_FIELD_ROWS, IDS_REASON_POSITIVE_INTEGER);
+            SETTING(IDC_ROWS) = TEXT("2");
             return FALSE;
         }
         rows = szText;
@@ -418,6 +428,7 @@ BOOL GazoNarabe::DataFromDialog(HWND hwnd, BOOL bList)
         if (*endptr != 0 || value <= 0)
         {
             OnInvalidString(hwnd, IDC_COLUMNS, IDS_FIELD_COLUMNS, IDS_REASON_POSITIVE_INTEGER);
+            SETTING(IDC_COLUMNS) = TEXT("2");
             return FALSE;
         }
         columns = szText;
@@ -431,6 +442,7 @@ BOOL GazoNarabe::DataFromDialog(HWND hwnd, BOOL bList)
         if (*endptr != 0 || value <= 0)
         {
             OnInvalidString(hwnd, IDC_FONT_SIZE, IDS_FIELD_FONT_SIZE, IDS_REASON_POSITIVE_REAL);
+            SETTING(IDC_FONT_SIZE) = TEXT("18");
             return FALSE;
         }
         font_size = szText;
@@ -441,6 +453,7 @@ BOOL GazoNarabe::DataFromDialog(HWND hwnd, BOOL bList)
         if (output_name.empty())
         {
             OnInvalidString(hwnd, IDC_OUTPUT_NAME, IDS_FIELD_OUTPUT_NAME, IDS_REASON_NON_EMPTY_STRING);
+            SETTING(IDC_OUTPUT_NAME) = doLoadString(IDS_OUTPUT_04);
             return FALSE;
         }
     }
@@ -462,7 +475,7 @@ BOOL GazoNarabe::DataFromDialog(HWND hwnd, BOOL bList)
 
         if (m_list.empty())
         {
-            MessageBox(hwnd, doLoadString(IDS_LISTISEMPTY), g_szAppName, MB_ICONERROR);
+            ::MessageBox(hwnd, doLoadString(IDS_LISTISEMPTY), g_szAppName, MB_ICONERROR);
             return FALSE;
         }
     }
@@ -547,6 +560,63 @@ BOOL GazoNarabe::DataFromReg(HWND hwnd)
     GET_REG_DATA(IDC_PAGE_NUMBERS);
     GET_REG_DATA(IDC_DONT_RESIZE_SMALL);
 #undef GET_REG_DATA
+
+    // 余白。ゼロ以上の実数を指定します。
+    {
+        auto& margin = SETTING(IDC_MARGIN);
+        LCMapString(GetUserDefaultLCID(), LCMAP_HALFWIDTH, margin.c_str(), -1, szText, _countof(szText));
+        WCHAR *endptr;
+        double value = wcstod(szText, &endptr);
+        if (*endptr != 0 || value < 0)
+        {
+            SETTING(IDC_MARGIN) = TEXT("8");
+        }
+        margin = szText;
+    }
+    // 1ページの行数。正の自然数ですよね。
+    {
+        auto& rows = SETTING(IDC_ROWS);
+        LCMapString(GetUserDefaultLCID(), LCMAP_HALFWIDTH, rows.c_str(), -1, szText, _countof(szText));
+        WCHAR *endptr;
+        long value = wcstol(szText, &endptr, 10);
+        if (*endptr != 0 || value <= 0)
+        {
+            SETTING(IDC_ROWS) = TEXT("2");
+        }
+        rows = szText;
+    }
+    // 1ページの列数。正の自然数ですよね。
+    {
+        auto& columns = SETTING(IDC_COLUMNS);
+        LCMapString(GetUserDefaultLCID(), LCMAP_HALFWIDTH, columns.c_str(), -1, szText, _countof(szText));
+        WCHAR *endptr;
+        long value = wcstol(szText, &endptr, 10);
+        if (*endptr != 0 || value <= 0)
+        {
+            SETTING(IDC_COLUMNS) = TEXT("2");
+        }
+        columns = szText;
+    }
+    // フォントサイズ(pt)。ゼロや負ではありません。
+    {
+        auto& font_size = SETTING(IDC_FONT_SIZE);
+        LCMapString(GetUserDefaultLCID(), LCMAP_HALFWIDTH, font_size.c_str(), -1, szText, _countof(szText));
+        WCHAR *endptr;
+        double value = wcstod(szText, &endptr);
+        if (*endptr != 0 || value <= 0)
+        {
+            SETTING(IDC_FONT_SIZE) = TEXT("18");
+        }
+        font_size = szText;
+    }
+    // 出力ファイル名。空ではありません。
+    {
+        auto& output_name = SETTING(IDC_OUTPUT_NAME);
+        if (output_name.empty())
+        {
+            SETTING(IDC_OUTPUT_NAME) = doLoadString(IDS_OUTPUT_04);
+        }
+    }
 
     // レジストリキーを閉じる。
     RegCloseKey(hKey);
