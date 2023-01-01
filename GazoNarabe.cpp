@@ -22,6 +22,15 @@
 
 #ifndef NO_SHAREWARE
     #include "Shareware.hpp"
+
+    SW_Shareware g_shareware(
+        /* company registry key */      TEXT("Katayama Hirofumi MZ"),
+        /* application registry key */  TEXT("GazoNarabePDF"),
+        /* password hash */
+        "e218f83f070a186f886c6dc82bd7ecf3d6c3ea4224fd7d213aa06e9c9713b395",
+        /* trial days */                10,
+        /* salt string */               "mJpDxx2D",
+        /* version string */            "0.9.5");
 #endif
 
 #define UTF8_SUPPORT // UTF-8サポート。
@@ -116,15 +125,6 @@ HINSTANCE g_hInstance = NULL; // インスタンス。
 TCHAR g_szAppName[256] = TEXT(""); // アプリ名。
 HICON g_hIcon = NULL; // アイコン（大）。
 HICON g_hIconSm = NULL; // アイコン（小）。
-
-SW_Shareware g_shareware(
-    /* company registry key */      TEXT("Katayama Hirofumi MZ"),
-    /* application registry key */  TEXT("GazoNarabePDF"),
-    /* password hash */
-    "e218f83f070a186f886c6dc82bd7ecf3d6c3ea4224fd7d213aa06e9c9713b395",
-    /* trial days */                10,
-    /* salt string */               "mJpDxx2D",
-    /* version string */            "0.9.5");
 
 // リソース文字列を読み込む。
 LPTSTR doLoadString(INT nID)
@@ -1815,14 +1815,6 @@ BOOL OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
     // リストの選択が変化した。
     OnListSelectionChange(hwnd);
 
-#ifndef NO_SHAREWARE
-    if (!g_shareware.Start(hwnd) || IsDebuggerPresent())
-    {
-        // 失敗。アプリケーションを終了する。
-        EndDialog(hwnd, IDABORT);
-    }
-#endif
-
     // Susie プラグインを読み込む。
     CHAR szPathA[MAX_PATH];
     GetModuleFileNameA(NULL, szPathA, _countof(szPathA));
@@ -2274,6 +2266,14 @@ DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 // ガゾーナラベのメイン関数。
 INT GazoNarabe_Main(HINSTANCE hInstance, INT argc, LPTSTR *argv)
 {
+#ifndef NO_SHAREWARE
+    if (IsDebuggerPresent() || !g_shareware.Start(NULL))
+    {
+        // 失敗。アプリケーションを終了する。
+        return -1;
+    }
+#endif
+
     g_hInstance = hInstance;
     InitCommonControls();
 
