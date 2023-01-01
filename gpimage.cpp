@@ -32,7 +32,7 @@ LPCWSTR gpimage_get_mime_from_filename(LPCWSTR filename)
     if (!dotext || !*dotext)
         return NULL;
 
-    // MIMEを取得する。
+    // JPEG
     if (lstrcmpiW(dotext, L".jpg") == 0 ||
         lstrcmpiW(dotext, L".jpeg") == 0 ||
         lstrcmpiW(dotext, L".jpe") == 0 ||
@@ -41,42 +41,49 @@ LPCWSTR gpimage_get_mime_from_filename(LPCWSTR filename)
         return L"image/jpeg";
     }
 
+    // PNG
     if (lstrcmpiW(dotext, L".png") == 0)
     {
         return L"image/png";
     }
 
+    // GIF
     if (lstrcmpiW(dotext, L".gif") == 0)
     {
         return L"image/gif";
     }
 
+    // BMP
     if (lstrcmpiW(dotext, L".bmp") == 0 || lstrcmpiW(dotext, L".dib") == 0)
     {
         return L"image/bmp";
     }
 
-    if (lstrcmpiW(dotext, L".tiff") == 0 || lstrcmpiW(dotext, L".tif") == 0)
+    // TIFF
+    if (lstrcmpiW(dotext, L".tif") == 0 || lstrcmpiW(dotext, L".tiff") == 0)
     {
         return L"image/tiff";
     }
 
+    // WMF
     if (lstrcmpiW(dotext, L".wmf") == 0)
     {
         return L"image/x-wmf";
     }
 
+    // EMF
     if (lstrcmpiW(dotext, L".emf") == 0)
     {
         return L"image/x-emf";
     }
 
+    // ICO
     if (lstrcmpiW(dotext, L".ico") == 0)
     {
         return L"image/vnd.microsoft.icon";
     }
 
-    return NULL;
+    return NULL; // 失敗。
 }
 
 // 拡張子が有効かをチェックする。
