@@ -66,11 +66,13 @@ public:
     // 一時ファイルを作成し、パスファイル名を返す。
     LPCTSTR make()
     {
-        for (UINT i = 0; i < 1000; ++i)
+        for (UINT i = 0; i < 1000; ++i) // 1000回やってダメならあきらめよう。
         {
+            // 調味料を使ってパスファイル名を作成する。
             StringCchPrintf(m_tempfile, _countof(m_tempfile),
                             TEXT("%s%s-%04lX%s"),
                             m_temppath, m_prefix, get_salt(), m_dot_ext);
+            // 新しく作成できたら、それを採用。
             HANDLE hFile = ::CreateFile(m_tempfile, GENERIC_WRITE, FILE_SHARE_READ,
                                         NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
             if (hFile != INVALID_HANDLE_VALUE)
@@ -78,8 +80,10 @@ public:
                 ::CloseHandle(hFile);
                 return m_tempfile;
             }
+            // 作成できなかったらやり直す。
         }
 
+        // 作成失敗。
         assert(0);
         m_tempfile[0] = 0;
         return NULL;
