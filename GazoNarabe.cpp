@@ -2266,7 +2266,10 @@ DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 // ガゾーナラベのメイン関数。
 INT GazoNarabe_Main(HINSTANCE hInstance, INT argc, LPTSTR *argv)
 {
+    // アプリのインスタンスを保持する。
     g_hInstance = hInstance;
+
+    // コモンコントロール群を初期化する。
     InitCommonControls();
 
 #ifndef NO_SHAREWARE
@@ -2278,8 +2281,13 @@ INT GazoNarabe_Main(HINSTANCE hInstance, INT argc, LPTSTR *argv)
     }
 #endif
 
+    // ユーザーデータを保持する。
     GazoNarabe gn(hInstance, argc, argv);
+
+    // ユーザーデータをパラメータとしてダイアログを開く。
     DialogBoxParam(hInstance, MAKEINTRESOURCE(1), NULL, DialogProc, (LPARAM)&gn);
+
+    // 正常終了。
     return 0;
 }
 
