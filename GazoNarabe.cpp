@@ -2267,6 +2267,7 @@ DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 INT GazoNarabe_Main(HINSTANCE hInstance, INT argc, LPTSTR *argv)
 {
 #ifndef NO_SHAREWARE
+    // デバッガ―が有効、またはシェアウェアを開始できないときは
     if (IsDebuggerPresent() || !g_shareware.Start(NULL))
     {
         // 失敗。アプリケーションを終了する。
