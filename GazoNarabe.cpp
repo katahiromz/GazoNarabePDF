@@ -279,11 +279,25 @@ doLoadPic(LPCWSTR filename, int* width = NULL, int* height = NULL,
     if (hbm)
         return hbm;
 
-    // Susieプラグインを試す。
+    // Susieプラグインを試す。SusieではANSI文字列を使用。
     auto ansi = ansi_from_wide(CP_ACP, filename);
     hbm = g_susie.load_image(ansi);
+    if (hbm == NULL)
+    {
+        // ANSI文字列では表現できないパスファイル名かもしれない。
+        // 一時ファイルを使用して再度挑戦。
+        LPCWSTR dotext = PathFindExtension(filename);
+        TempFile temp_file;
+        temp_file.init(L"GN2", dotext);
+        if (CopyFile(filename, temp_file.make(), FALSE))
+        {
+            ansi = ansi_from_wide(CP_ACP, temp_file.get());
+            hbm = g_susie.load_image(ansi);
+        }
+    }
     if (hbm)
     {
+        // 必要な情報を取得する。
         BITMAP bm;
         GetObject(hbm, sizeof(bm), &bm);
         if (width)
