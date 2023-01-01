@@ -1,8 +1,8 @@
-// Susie.hpp --- Susieƒvƒ‰ƒOƒCƒ“ŠÇ— by katahiromz
+// Susie.hpp --- Susieãƒ—ãƒ©ã‚°ã‚¤ãƒ³ç®¡ç† by katahiromz
 #pragma once
 
 #ifndef _INC_WINDOWS
-    #include <windows.h> // Windows‚Ì•W€ƒwƒbƒ_B
+    #include <windows.h> // Windowsã®æ¨™æº–ãƒ˜ãƒƒãƒ€ã€‚
 #endif
 
 #include <string> // std::string, std::wstring
@@ -11,43 +11,43 @@
 class SusiePlugin;
 class SusiePluginManager;
 
-// Susieƒvƒ‰ƒOƒCƒ“‚ÌƒNƒ‰ƒXB
+// Susieãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ã‚¯ãƒ©ã‚¹ã€‚
 class SusiePlugin
 {
 public:
-    // APIŠÖ”Œ^‚Ì’è‹`B
+    // APIé–¢æ•°å‹ã®å®šç¾©ã€‚
     typedef int (PASCAL *FN_GetPluginInfo)(int infono, LPSTR buf, int buflen);
     typedef int (PASCAL *FN_IsSupported)(LPSTR filename, DWORD dw);
     typedef int (PASCAL *FN_GetPicture)(LPSTR buf, long len, unsigned int flag,
                                         HANDLE *pHBInfo, HANDLE *pHBm,
                                         FARPROC lpPrgressCallback, long lData);
-    HINSTANCE m_hInst = NULL; // ƒvƒ‰ƒOƒCƒ“‚ÌƒCƒ“ƒXƒ^ƒ“ƒXB
+    HINSTANCE m_hInst = NULL; // ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã€‚
 
-    // APIŠÖ”‚Ìƒ|ƒCƒ“ƒ^B
+    // APIé–¢æ•°ã®ãƒã‚¤ãƒ³ã‚¿ã€‚
     FN_GetPluginInfo GetPluginInfo = NULL;
     FN_IsSupported IsSupported = NULL;
     FN_GetPicture GetPicture = NULL;
 
-    std::string m_filename; // ƒtƒ@ƒCƒ‹–¼B
-    std::string m_filter; // ƒtƒBƒ‹ƒ^[•¶š—ñB
+    std::string m_filename; // ãƒ•ã‚¡ã‚¤ãƒ«åã€‚
+    std::string m_filter; // ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼æ–‡å­—åˆ—ã€‚
 
-    // ƒRƒ“ƒXƒgƒ‰ƒNƒ^B
+    // ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
     SusiePlugin()
     {
     }
 
-    // SusiePluginƒNƒ‰ƒX‚ÍƒRƒs[‹Ö~B
+    // SusiePluginã‚¯ãƒ©ã‚¹ã¯ã‚³ãƒ”ãƒ¼ç¦æ­¢ã€‚
     SusiePlugin(const SusiePlugin&) = delete;
     SusiePlugin& operator=(const SusiePlugin&) = delete;
 
-    // ƒfƒXƒgƒ‰ƒNƒ^B
+    // ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
     ~SusiePlugin()
     {
-        // ©“®“I‚É”jŠü‚·‚éB
+        // è‡ªå‹•çš„ã«ç ´æ£„ã™ã‚‹ã€‚
         unload();
     }
 
-    // ”jŠü‚Ü‚½‚Í‰Šú‰»‚·‚éB
+    // ç ´æ£„ã¾ãŸã¯åˆæœŸåŒ–ã™ã‚‹ã€‚
     void unload()
     {
         m_filename.clear();
@@ -62,7 +62,7 @@ public:
         GetPicture = NULL;
     }
 
-    // Šg’£q‚ªƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚é‚©H
+    // æ‹¡å¼µå­ãŒã‚µãƒãƒ¼ãƒˆã•ã‚Œã¦ã„ã‚‹ã‹ï¼Ÿ
     bool is_dotext_supported(LPCSTR dotext) const
     {
         std::vector<std::string> extensions;
@@ -79,18 +79,18 @@ public:
         return false;
     }
 
-    // ƒvƒ‰ƒOƒCƒ“‚ğ“Ç‚İ‚ŞB
+    // ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’èª­ã¿è¾¼ã‚€ã€‚
     bool load(const char *filename)
     {
-        // Å‰‚É‰Šú‰»‚·‚éB
+        // æœ€åˆã«åˆæœŸåŒ–ã™ã‚‹ã€‚
         unload();
 
-        // ƒvƒ‰ƒOƒCƒ“‚ğDLLƒtƒ@ƒCƒ‹‚Æ‚µ‚Ä“Ç‚İ‚ŞB
+        // ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’DLLãƒ•ã‚¡ã‚¤ãƒ«ã¨ã—ã¦èª­ã¿è¾¼ã‚€ã€‚
         m_hInst = LoadLibraryA(filename);
         if (m_hInst == NULL)
             return false;
 
-        // DLL‚©‚çAPIŠÖ”‚ğæ“¾‚·‚éB
+        // DLLã‹ã‚‰APIé–¢æ•°ã‚’å–å¾—ã™ã‚‹ã€‚
         GetPluginInfo = (FN_GetPluginInfo)GetProcAddress(m_hInst, "GetPluginInfo");
         IsSupported = (FN_IsSupported)GetProcAddress(m_hInst, "IsSupported");
         GetPicture = (FN_GetPicture)GetProcAddress(m_hInst, "GetPicture");
@@ -100,15 +100,15 @@ public:
             return false;
         }
 
-        // APIƒo[ƒWƒ‡ƒ“î•ñ‚ğæ“¾‚·‚éB
+        // APIãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±ã‚’å–å¾—ã™ã‚‹ã€‚
         CHAR buf[512];
         GetPluginInfo(0, buf, 512);
         std::string api_ver = buf;
 
-        // ‰æ‘œ“Ç‚İ‚İ—p‚Ìƒvƒ‰ƒOƒCƒ“‚©H
+        // ç”»åƒèª­ã¿è¾¼ã¿ç”¨ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‹ï¼Ÿ
         if (api_ver.size() == 4 && api_ver[2] == 'I')
         {
-            // ƒtƒBƒ‹ƒ^[‚ğæ“¾‚·‚éB
+            // ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼ã‚’å–å¾—ã™ã‚‹ã€‚
             for (int i = 2; i < 64; i += 2)
             {
                 if (!GetPluginInfo(i + 0, buf, 512))
@@ -119,51 +119,51 @@ public:
             }
         }
 
-        // ƒtƒBƒ‹ƒ^[‚ª‚È‚¯‚ê‚Î”jŠü‚·‚éB
+        // ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼ãŒãªã‘ã‚Œã°ç ´æ£„ã™ã‚‹ã€‚
         if (m_filter.empty())
         {
             unload();
             return false;
         }
 
-        // ƒtƒ@ƒCƒ‹–¼‚ğŠi”[‚·‚éB
+        // ãƒ•ã‚¡ã‚¤ãƒ«åã‚’æ ¼ç´ã™ã‚‹ã€‚
         m_filename = PathFindFileNameA(filename);
         return true;
     }
 
-    // ƒvƒ‰ƒOƒCƒ“‚ğg—p‚µ‚Ä‰æ‘œ‚ğ“Ç‚İ‚ŞB
+    // ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’ä½¿ç”¨ã—ã¦ç”»åƒã‚’èª­ã¿è¾¼ã‚€ã€‚
     HBITMAP load_image(LPCSTR filename)
     {
-        // APIŠÖ”GetPicture‚ğg‚Á‚Ä‰æ‘œƒf[ƒ^‚ğæ“¾‚·‚éB
+        // APIé–¢æ•°GetPictureã‚’ä½¿ã£ã¦ç”»åƒãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹ã€‚
         HLOCAL hBitmapInfo = NULL, hBits = NULL;
         if (GetPicture((LPSTR)filename, 0, 0, (HANDLE*)&hBitmapInfo, (HANDLE*)&hBits, NULL, 0) != 0)
             return NULL;
 
-        // ƒnƒ“ƒhƒ‹‚ğƒƒbƒN‚·‚é‚±‚Æ‚ÅAÀÛ‚Ìƒ|ƒCƒ“ƒ^‚ğæ“¾‚Å‚«‚éB
+        // ãƒãƒ³ãƒ‰ãƒ«ã‚’ãƒ­ãƒƒã‚¯ã™ã‚‹ã“ã¨ã§ã€å®Ÿéš›ã®ãƒã‚¤ãƒ³ã‚¿ã‚’å–å¾—ã§ãã‚‹ã€‚
         LPBITMAPINFO pbmi = (LPBITMAPINFO)LocalLock(hBitmapInfo);
         LPBYTE pbBits = (LPBYTE)LocalLock(hBits);
 
-        // DIB‚ÌHBITMAP‚ğì¬B
+        // DIBã®HBITMAPã‚’ä½œæˆã€‚
         LPVOID pBits;
         HBITMAP hbm = CreateDIBSection(NULL, pbmi, DIB_RGB_COLORS, &pBits, NULL, 0);
 
-        // ƒrƒbƒgŒQ‚ğƒRƒs[‚·‚éB
+        // ãƒ“ãƒƒãƒˆç¾¤ã‚’ã‚³ãƒ”ãƒ¼ã™ã‚‹ã€‚
         BITMAP bm;
         if (hbm && GetObject(hbm, sizeof(bm), &bm))
             CopyMemory(pBits, pbBits, bm.bmWidthBytes * bm.bmHeight);
 
-        // ƒAƒ“ƒƒbƒNE”jŠü‚·‚éB
+        // ã‚¢ãƒ³ãƒ­ãƒƒã‚¯ãƒ»ç ´æ£„ã™ã‚‹ã€‚
         LocalUnlock(hBitmapInfo);
         LocalUnlock(hBits);
         LocalFree(hBitmapInfo);
         LocalFree(hBits);
 
-        // ƒrƒbƒgƒ}ƒbƒvƒnƒ“ƒhƒ‹HBITMAP‚ğ•Ô‚·B
+        // ãƒ“ãƒƒãƒˆãƒãƒƒãƒ—ãƒãƒ³ãƒ‰ãƒ«HBITMAPã‚’è¿”ã™ã€‚
         return hbm;
     }
 
 protected:
-    // •¶š—ñ‚ğ‹æØ‚è‚Å•ªŠ„‚·‚éŠÖ”B
+    // æ–‡å­—åˆ—ã‚’åŒºåˆ‡ã‚Šã§åˆ†å‰²ã™ã‚‹é–¢æ•°ã€‚
     template <typename T_STR_CONTAINER>
     static void
     str_split(T_STR_CONTAINER& container,
@@ -182,36 +182,36 @@ protected:
     }
 };
 
-// Susieƒvƒ‰ƒOƒCƒ“‚ÌŠÇ—ƒNƒ‰ƒXB
+// Susieãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ç®¡ç†ã‚¯ãƒ©ã‚¹ã€‚
 class SusiePluginManager
 {
 public:
-    // Susieƒvƒ‰ƒOƒCƒ“‚Ìƒtƒ@ƒCƒ‹–¼ŒQB
+    // Susieãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ãƒ•ã‚¡ã‚¤ãƒ«åç¾¤ã€‚
     std::vector<std::string> m_plugin_filenames;
-    // Susieƒvƒ‰ƒOƒCƒ“‚ÌƒpƒXƒtƒ@ƒCƒ‹–¼ŒQB
+    // Susieãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ãƒ‘ã‚¹ãƒ•ã‚¡ã‚¤ãƒ«åç¾¤ã€‚
     std::vector<std::string> m_plugin_pathnames;
-    // Susieƒvƒ‰ƒOƒCƒ“ŒQ‚ğ•Û‚·‚é•Ï”B
+    // Susieãƒ—ãƒ©ã‚°ã‚¤ãƒ³ç¾¤ã‚’ä¿æŒã™ã‚‹å¤‰æ•°ã€‚
     std::vector<SusiePlugin*> m_plugins;
 
-    // ƒRƒ“ƒXƒgƒ‰ƒNƒ^B
+    // ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
     SusiePluginManager()
     {
     }
 
-    // ƒfƒXƒgƒ‰ƒNƒ^B
+    // ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
     ~SusiePluginManager()
     {
-        // ©“®“I‚É”jŠü‚·‚éB
+        // è‡ªå‹•çš„ã«ç ´æ£„ã™ã‚‹ã€‚
         unload();
     }
 
-    // ƒvƒ‰ƒOƒCƒ“‚ª“Ç‚İ‚Ü‚ê‚½‚©H
+    // ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒèª­ã¿è¾¼ã¾ã‚ŒãŸã‹ï¼Ÿ
     bool is_loaded() const
     {
         return m_plugins.size() > 0;
     }
 
-    // ƒvƒ‰ƒOƒCƒ“ŒQ‚ğ”jŠü‚µ‚ÄA‰Šú‰»‚·‚éB
+    // ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ç¾¤ã‚’ç ´æ£„ã—ã¦ã€åˆæœŸåŒ–ã™ã‚‹ã€‚
     void unload()
     {
         for (size_t i = 0; i < m_plugins.size(); ++i)
@@ -225,18 +225,18 @@ public:
         m_plugin_pathnames.clear();
     }
 
-    // ƒfƒBƒŒƒNƒgƒŠiƒtƒHƒ‹ƒ_j‚©‚çƒvƒ‰ƒOƒCƒ“ŒQ‚ğ“Ç‚İ‚ŞB
+    // ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªï¼ˆãƒ•ã‚©ãƒ«ãƒ€ï¼‰ã‹ã‚‰ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ç¾¤ã‚’èª­ã¿è¾¼ã‚€ã€‚
     bool load(LPCSTR dir = ".")
     {
-        // Å‰‚É”jŠüE‰Šú‰»‚·‚éB
+        // æœ€åˆã«ç ´æ£„ãƒ»åˆæœŸåŒ–ã™ã‚‹ã€‚
         unload();
 
-        // ƒƒCƒ‹ƒhƒJ[ƒh‚ğŠÜ‚Ş•¶š—ñ‚ğ\’z‚·‚éB
+        // ãƒ¯ã‚¤ãƒ«ãƒ‰ã‚«ãƒ¼ãƒ‰ã‚’å«ã‚€æ–‡å­—åˆ—ã‚’æ§‹ç¯‰ã™ã‚‹ã€‚
         CHAR path[MAX_PATH];
         GetFullPathNameA(dir, MAX_PATH, path, NULL);
         PathAppendA(path, "*.spi");
 
-        // ƒpƒ^[ƒ“ƒ}ƒbƒ`‚Éƒ}ƒbƒ`‚µ‚½•¶š—ñ‚ğ—ñ‹“‚µ‚ÄAƒvƒ‰ƒOƒCƒ“‚Ìˆê——‚ğæ“¾‚·‚éB
+        // ãƒ‘ã‚¿ãƒ¼ãƒ³ãƒãƒƒãƒã«ãƒãƒƒãƒã—ãŸæ–‡å­—åˆ—ã‚’åˆ—æŒ™ã—ã¦ã€ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ä¸€è¦§ã‚’å–å¾—ã™ã‚‹ã€‚
         WIN32_FIND_DATAA find;
         HANDLE hFind = FindFirstFileA(path, &find);
         PathRemoveFileSpecA(path);
@@ -252,7 +252,7 @@ public:
             FindClose(hFind);
         }
 
-        // ÀÛ‚Éƒvƒ‰ƒOƒCƒ“‚ğ“Ç‚İ‚ŞB
+        // å®Ÿéš›ã«ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’èª­ã¿è¾¼ã‚€ã€‚
         for (size_t i = 0; i < m_plugin_pathnames.size(); ++i)
         {
             SusiePlugin *plugin = new SusiePlugin();
@@ -265,11 +265,11 @@ public:
             m_plugins.push_back(plugin);
         }
 
-        // ‚P‚Â‚Å‚àƒvƒ‰ƒOƒCƒ“‚ğ“Ç‚İ‚ß‚½‚ç¬Œ÷B
+        // ï¼‘ã¤ã§ã‚‚ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’èª­ã¿è¾¼ã‚ãŸã‚‰æˆåŠŸã€‚
         return m_plugins.size() > 0;
     }
 
-    // w’è‚³‚ê‚½Šg’£q‚ªƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚é‚©H
+    // æŒ‡å®šã•ã‚ŒãŸæ‹¡å¼µå­ãŒã‚µãƒãƒ¼ãƒˆã•ã‚Œã¦ã„ã‚‹ã‹ï¼Ÿ
     bool is_dotext_supported(LPCSTR dotext) const
     {
         for (size_t i = 0; i < m_plugins.size(); ++i)
@@ -286,13 +286,13 @@ public:
         return false;
     }
 
-    // ƒvƒ‰ƒOƒCƒ“ŒQ‚ğg—p‚µ‚Ä‰æ‘œƒtƒ@ƒCƒ‹‚ğHBITMAP‚Æ‚µ‚Ä“Ç‚İ‚ŞB
+    // ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ç¾¤ã‚’ä½¿ç”¨ã—ã¦ç”»åƒãƒ•ã‚¡ã‚¤ãƒ«ã‚’HBITMAPã¨ã—ã¦èª­ã¿è¾¼ã‚€ã€‚
     HBITMAP load_image(LPCSTR filename)
     {
-        // Šg’£q‚ğæ“¾‚·‚éB
+        // æ‹¡å¼µå­ã‚’å–å¾—ã™ã‚‹ã€‚
         LPCSTR dotext = PathFindExtensionA(filename);
 
-        // Šg’£q‚ğƒTƒ|[ƒg‚µ‚Ä‚¢‚éƒvƒ‰ƒOƒCƒ“‚Å“Ç‚İ‚İ‚ğ‚İ‚éB
+        // æ‹¡å¼µå­ã‚’ã‚µãƒãƒ¼ãƒˆã—ã¦ã„ã‚‹ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã§èª­ã¿è¾¼ã¿ã‚’è©¦ã¿ã‚‹ã€‚
         for (size_t i = 0; i < m_plugins.size(); ++i)
         {
             SusiePlugin *plugin = m_plugins[i];
@@ -307,10 +307,10 @@ public:
             }
         }
 
-        return NULL; // ¸”sB
+        return NULL; // å¤±æ•—ã€‚
     }
 
-    // ƒtƒBƒ‹ƒ^[•¶š—ñ‚ğæ“¾‚·‚éB
+    // ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼æ–‡å­—åˆ—ã‚’å–å¾—ã™ã‚‹ã€‚
     std::string get_filter() const
     {
         std::string ret;
