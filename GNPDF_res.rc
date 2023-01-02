@@ -95,7 +95,7 @@ FONT 9, "メイリオ"
     PUSHBUTTON "すべて削除", psh7, 275, 190, 60, 15
     PUSHBUTTON "終了", IDCANCEL, 290, 210, 45, 15
     PUSHBUTTON "設定の初期化", psh5, 275, 140, 60, 15
-    CONTROL "", ico1, "STATIC", SS_REALSIZEIMAGE | SS_BITMAP | WS_GROUP, 275, 160, 35, 25
+    CONTROL "", ico1, "STATIC", SS_REALSIZEIMAGE | SS_BITMAP | SS_NOTIFY | WS_GROUP, 275, 160, 35, 25
 }
 
 //////////////////////////////////////////////////////////////////////////////

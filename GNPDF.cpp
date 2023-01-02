@@ -2336,6 +2336,14 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             }
             break;
         }
+        break;
+    case ico1: // プレビュー。
+        if (codeNotify == STN_DBLCLK)
+        {
+            // ファイルを開く。
+            OnListItemOpen(hwnd);
+        }
+        break;
     }
 }
 
@@ -2480,18 +2488,21 @@ int OnVkeyToItem(HWND hwnd, UINT vk, HWND hwndListbox, int iCaret)
 // コンテキストメニューを開く。
 void OnContextMenu(HWND hwnd, HWND hwndContext, UINT xPos, UINT yPos)
 {
+    // プレビュー。
+    HWND hIco1 = ::GetDlgItem(hwnd, ico1);
+
     // リストボックス。
     HWND hLst1 = ::GetDlgItem(hwnd, lst1);
 
-    // リストボックスのコンテキストメニューでなければ無視。
-    if (hLst1 != hwndContext)
+    // 対象でなければ無視。
+    if (hLst1 != hwndContext && hIco1 != hwndContext)
         return;
 
     if (xPos == 0xFFFF && yPos == 0xFFFF) // キーボードからメニューが開かれたか？
     {
         // メニューの位置をリストボックスに合わせる。
         RECT rc;
-        ::GetWindowRect(hLst1, &rc);
+        ::GetWindowRect(hwndContext, &rc);
         xPos = rc.left;
         yPos = rc.top;
     }
