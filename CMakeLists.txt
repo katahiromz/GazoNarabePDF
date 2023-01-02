@@ -7,7 +7,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 # project name and languages
-project(GazoNarabe CXX RC)
+project(GNPDF CXX RC)
 
 # set output directory (build/)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
@@ -56,7 +56,7 @@ add_subdirectory(libharu)
 include_directories(libharu/include)
 
 # GNPDF.exe
-add_executable(GNPDF WIN32 GazoNarabe.cpp GazoNarabe_res.rc gpimage.cpp Shareware.cpp SHA-256.cpp)
+add_executable(GNPDF WIN32 GNPDF.cpp GNPDF_res.rc gpimage.cpp Shareware.cpp SHA-256.cpp)
 target_link_libraries(GNPDF comctl32 shlwapi gdiplus hpdf ${PNG_LIBRARY} ${ZLIB_LIBRARY})
 
 ##############################################################################
