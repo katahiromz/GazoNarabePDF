@@ -88,6 +88,13 @@
 #define IDS_REASON_POSITIVE_REAL            192
 #define IDS_REASON_NON_EMPTY_STRING         193
 #define IDS_SUSIE_IMAGES                    194
+#define IDS_HEADER_01                       195
+#define IDS_HEADER_02                       196
+#define IDS_HEADER_03                       197
+#define IDS_FOOTER_01                       198
+#define IDS_FOOTER_02                       199
+#define IDS_FOOTER_03                       200
+#define IDS_OUTPUT_07                       201
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS

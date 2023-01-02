@@ -59,6 +59,8 @@ enum
     IDC_IMAGE_DATA_SIZE = cmb8,
     IDC_IMAGE_TITLE = cmb9,
     IDC_OUTPUT_NAME = cmb10,
+    IDC_HEADER = cmb11,
+    IDC_FOOTER = cmb12,
     IDC_DRAW_BORDER = chx1,
     IDC_PAGE_NUMBERS = chx2,
     IDC_DONT_RESIZE_SMALL = chx3,
@@ -444,23 +446,42 @@ GazoNarabe::GazoNarabe(HINSTANCE hInstance, INT argc, LPTSTR *argv)
     }
 }
 
+// 既定値。
+#define IDC_PAGE_SIZE_DEFAULT doLoadString(IDS_A4)
+#define IDC_PAGE_DIRECTION_DEFAULT doLoadString(IDS_LANDSCAPE)
+#define IDC_MARGIN_DEFAULT TEXT("8")
+#define IDC_ROWS_DEFAULT TEXT("2")
+#define IDC_COLUMNS_DEFAULT TEXT("2")
+#define IDC_FONT_NAME_DEFAULT doLoadString(IDS_FONT_01)
+#define IDC_FONT_SIZE_DEFAULT TEXT("18")
+#define IDC_IMAGE_DATA_SIZE_DEFAULT doLoadString(IDS_512KB)
+#define IDC_IMAGE_TITLE_DEFAULT doLoadString(IDS_PICTITLE_01)
+#define IDC_OUTPUT_NAME_DEFAULT doLoadString(IDS_OUTPUT_04)
+#define IDC_DRAW_BORDER_DEFAULT doLoadString(IDS_YES)
+#define IDC_PAGE_NUMBERS_DEFAULT doLoadString(IDS_YES)
+#define IDC_DONT_RESIZE_SMALL_DEFAULT doLoadString(IDS_NO)
+#define IDC_HEADER_DEFAULT doLoadString(IDS_NOSPEC)
+#define IDC_FOOTER_DEFAULT doLoadString(IDS_FOOTER_01)
+
 // データをリセットする。
 void GazoNarabe::Reset()
 {
 #define SETTING(id) m_settings[TEXT(#id)]
-    SETTING(IDC_PAGE_SIZE) = doLoadString(IDS_A4);
-    SETTING(IDC_PAGE_DIRECTION) = doLoadString(IDS_LANDSCAPE);
-    SETTING(IDC_MARGIN) = TEXT("8");
-    SETTING(IDC_ROWS) = TEXT("2");
-    SETTING(IDC_COLUMNS) = TEXT("2");
-    SETTING(IDC_FONT_NAME) = doLoadString(IDS_FONT_01);
-    SETTING(IDC_FONT_SIZE) = TEXT("18");
-    SETTING(IDC_IMAGE_DATA_SIZE) = doLoadString(IDS_512KB);
-    SETTING(IDC_IMAGE_TITLE) = doLoadString(IDS_PICTITLE_01);
-    SETTING(IDC_OUTPUT_NAME) = doLoadString(IDS_OUTPUT_04);
-    SETTING(IDC_DRAW_BORDER) = doLoadString(IDS_YES);
-    SETTING(IDC_PAGE_NUMBERS) = doLoadString(IDS_YES);
-    SETTING(IDC_DONT_RESIZE_SMALL) = doLoadString(IDS_NO);
+    SETTING(IDC_PAGE_SIZE) = IDC_PAGE_SIZE_DEFAULT;
+    SETTING(IDC_PAGE_DIRECTION) = IDC_PAGE_DIRECTION_DEFAULT;
+    SETTING(IDC_MARGIN) = IDC_MARGIN_DEFAULT;
+    SETTING(IDC_ROWS) = IDC_ROWS_DEFAULT;
+    SETTING(IDC_COLUMNS) = IDC_COLUMNS_DEFAULT;
+    SETTING(IDC_FONT_NAME) = IDC_FONT_NAME_DEFAULT;
+    SETTING(IDC_FONT_SIZE) = IDC_FONT_SIZE_DEFAULT;
+    SETTING(IDC_IMAGE_DATA_SIZE) = IDC_IMAGE_DATA_SIZE_DEFAULT;
+    SETTING(IDC_IMAGE_TITLE) = IDC_IMAGE_TITLE_DEFAULT;
+    SETTING(IDC_OUTPUT_NAME) = IDC_OUTPUT_NAME_DEFAULT;
+    SETTING(IDC_DRAW_BORDER) = IDC_DRAW_BORDER_DEFAULT;
+    SETTING(IDC_PAGE_NUMBERS) = IDC_PAGE_NUMBERS_DEFAULT;
+    SETTING(IDC_DONT_RESIZE_SMALL) = IDC_DONT_RESIZE_SMALL_DEFAULT;
+    SETTING(IDC_HEADER) = IDC_HEADER_DEFAULT;
+    SETTING(IDC_FOOTER) = IDC_FOOTER_DEFAULT;
 
     m_list.clear();
 }
@@ -548,6 +569,19 @@ void GazoNarabe::InitDialog(HWND hwnd)
     SendDlgItemMessage(hwnd, IDC_OUTPUT_NAME, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_OUTPUT_04));
     SendDlgItemMessage(hwnd, IDC_OUTPUT_NAME, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_OUTPUT_05));
     SendDlgItemMessage(hwnd, IDC_OUTPUT_NAME, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_OUTPUT_06));
+    SendDlgItemMessage(hwnd, IDC_OUTPUT_NAME, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_OUTPUT_07));
+
+    // IDC_HEADER: ヘッダー。
+    SendDlgItemMessage(hwnd, IDC_HEADER, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_NOSPEC));
+    SendDlgItemMessage(hwnd, IDC_HEADER, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_HEADER_01));
+    SendDlgItemMessage(hwnd, IDC_HEADER, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_HEADER_02));
+    SendDlgItemMessage(hwnd, IDC_HEADER, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_HEADER_03));
+
+    // IDC_FOOTER: フッター。
+    SendDlgItemMessage(hwnd, IDC_FOOTER, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_NOSPEC));
+    SendDlgItemMessage(hwnd, IDC_FOOTER, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_FOOTER_01));
+    SendDlgItemMessage(hwnd, IDC_FOOTER, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_FOOTER_02));
+    SendDlgItemMessage(hwnd, IDC_FOOTER, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_FOOTER_03));
 }
 
 // ダイアログからデータへ。
@@ -571,6 +605,8 @@ BOOL GazoNarabe::DataFromDialog(HWND hwnd, BOOL bList)
     GET_COMBO_DATA(IDC_IMAGE_DATA_SIZE);
     GET_COMBO_DATA(IDC_IMAGE_TITLE);
     GET_COMBO_DATA(IDC_OUTPUT_NAME);
+    GET_COMBO_DATA(IDC_HEADER);
+    GET_COMBO_DATA(IDC_FOOTER);
 #undef GET_COMBO_DATA
 
     // チェックボックスからデータを取得する。
@@ -594,7 +630,7 @@ BOOL GazoNarabe::DataFromDialog(HWND hwnd, BOOL bList)
         if (*endptr != 0 || value < 0)
         {
             OnInvalidString(hwnd, IDC_MARGIN, IDS_FIELD_MARGIN, IDS_REASON_POSITIVE_REAL);
-            SETTING(IDC_MARGIN) = TEXT("8");
+            SETTING(IDC_MARGIN) = IDC_MARGIN_DEFAULT;
             return FALSE;
         }
         margin = szText;
@@ -608,7 +644,7 @@ BOOL GazoNarabe::DataFromDialog(HWND hwnd, BOOL bList)
         if (*endptr != 0 || value <= 0)
         {
             OnInvalidString(hwnd, IDC_ROWS, IDS_FIELD_ROWS, IDS_REASON_POSITIVE_INTEGER);
-            SETTING(IDC_ROWS) = TEXT("2");
+            SETTING(IDC_ROWS) = IDC_ROWS_DEFAULT;
             return FALSE;
         }
         rows = szText;
@@ -622,7 +658,7 @@ BOOL GazoNarabe::DataFromDialog(HWND hwnd, BOOL bList)
         if (*endptr != 0 || value <= 0)
         {
             OnInvalidString(hwnd, IDC_COLUMNS, IDS_FIELD_COLUMNS, IDS_REASON_POSITIVE_INTEGER);
-            SETTING(IDC_COLUMNS) = TEXT("2");
+            SETTING(IDC_COLUMNS) = IDC_COLUMNS_DEFAULT;
             return FALSE;
         }
         columns = szText;
@@ -636,7 +672,7 @@ BOOL GazoNarabe::DataFromDialog(HWND hwnd, BOOL bList)
         if (*endptr != 0 || value <= 0)
         {
             OnInvalidString(hwnd, IDC_FONT_SIZE, IDS_FIELD_FONT_SIZE, IDS_REASON_POSITIVE_REAL);
-            SETTING(IDC_FONT_SIZE) = TEXT("18");
+            SETTING(IDC_FONT_SIZE) = IDC_FONT_SIZE_DEFAULT;
             return FALSE;
         }
         font_size = szText;
@@ -647,7 +683,7 @@ BOOL GazoNarabe::DataFromDialog(HWND hwnd, BOOL bList)
         if (output_name.empty())
         {
             OnInvalidString(hwnd, IDC_OUTPUT_NAME, IDS_FIELD_OUTPUT_NAME, IDS_REASON_NON_EMPTY_STRING);
-            SETTING(IDC_OUTPUT_NAME) = doLoadString(IDS_OUTPUT_04);
+            SETTING(IDC_OUTPUT_NAME) = IDC_OUTPUT_NAME_DEFAULT;
             return FALSE;
         }
     }
@@ -693,6 +729,8 @@ BOOL GazoNarabe::DialogFromData(HWND hwnd, BOOL bList)
     SET_COMBO_DATA(IDC_IMAGE_DATA_SIZE);
     SET_COMBO_DATA(IDC_IMAGE_TITLE);
     SET_COMBO_DATA(IDC_OUTPUT_NAME);
+    SET_COMBO_DATA(IDC_HEADER);
+    SET_COMBO_DATA(IDC_FOOTER);
 #undef SET_COMBO_DATA
 
     // チェックボックスへデータを設定する。
@@ -753,6 +791,8 @@ BOOL GazoNarabe::DataFromReg(HWND hwnd)
     GET_REG_DATA(IDC_DRAW_BORDER);
     GET_REG_DATA(IDC_PAGE_NUMBERS);
     GET_REG_DATA(IDC_DONT_RESIZE_SMALL);
+    GET_REG_DATA(IDC_HEADER);
+    GET_REG_DATA(IDC_FOOTER);
 #undef GET_REG_DATA
 
     // 余白。ゼロ以上の実数を指定します。
@@ -763,7 +803,7 @@ BOOL GazoNarabe::DataFromReg(HWND hwnd)
         double value = wcstod(szText, &endptr);
         if (*endptr != 0 || value < 0)
         {
-            SETTING(IDC_MARGIN) = TEXT("8");
+            SETTING(IDC_MARGIN) = IDC_MARGIN_DEFAULT;
         }
         margin = szText;
     }
@@ -775,7 +815,7 @@ BOOL GazoNarabe::DataFromReg(HWND hwnd)
         long value = wcstol(szText, &endptr, 10);
         if (*endptr != 0 || value <= 0)
         {
-            SETTING(IDC_ROWS) = TEXT("2");
+            SETTING(IDC_ROWS) = IDC_ROWS_DEFAULT;
         }
         rows = szText;
     }
@@ -787,7 +827,7 @@ BOOL GazoNarabe::DataFromReg(HWND hwnd)
         long value = wcstol(szText, &endptr, 10);
         if (*endptr != 0 || value <= 0)
         {
-            SETTING(IDC_COLUMNS) = TEXT("2");
+            SETTING(IDC_COLUMNS) = IDC_COLUMNS_DEFAULT;
         }
         columns = szText;
     }
@@ -799,7 +839,7 @@ BOOL GazoNarabe::DataFromReg(HWND hwnd)
         double value = wcstod(szText, &endptr);
         if (*endptr != 0 || value <= 0)
         {
-            SETTING(IDC_FONT_SIZE) = TEXT("18");
+            SETTING(IDC_FONT_SIZE) = IDC_FONT_SIZE_DEFAULT;
         }
         font_size = szText;
     }
@@ -808,7 +848,7 @@ BOOL GazoNarabe::DataFromReg(HWND hwnd)
         auto& output_name = SETTING(IDC_OUTPUT_NAME);
         if (output_name.empty())
         {
-            SETTING(IDC_OUTPUT_NAME) = doLoadString(IDS_OUTPUT_04);
+            SETTING(IDC_OUTPUT_NAME) = IDC_OUTPUT_NAME_DEFAULT;
         }
     }
 
@@ -854,6 +894,8 @@ BOOL GazoNarabe::RegFromData(HWND hwnd)
     SET_REG_DATA(IDC_DRAW_BORDER);
     SET_REG_DATA(IDC_PAGE_NUMBERS);
     SET_REG_DATA(IDC_DONT_RESIZE_SMALL);
+    SET_REG_DATA(IDC_HEADER);
+    SET_REG_DATA(IDC_FOOTER);
 #undef SET_REG_DATA
 
     // レジストリキーを閉じる。
@@ -1467,6 +1509,15 @@ string_t GazoNarabe::JustDoIt(HWND hwnd)
         if (image_title == doLoadString(IDS_NOSPEC))
             image_title.clear();
 
+        // ヘッダー。
+        string_t header = SETTING(IDC_HEADER);
+        if (header == doLoadString(IDS_NOSPEC))
+            header.clear();
+        // フッター。
+        string_t footer = SETTING(IDC_FOOTER);
+        if (footer == doLoadString(IDS_NOSPEC))
+            footer.clear();
+
         // 出力ファイル名。
         string_t output_name = SETTING(IDC_OUTPUT_NAME);
 
@@ -1541,17 +1592,32 @@ string_t GazoNarabe::JustDoIt(HWND hwnd)
                     HPDF_Page_EndText(page);
                 }
 #endif
+                // ヘッダー（ページ見出し）を描画する。
+                if (header.size())
+                {
+                    string_t text = header;
+                    substitute_tags(text, m_list[iItem], iItem, cItems, iPage, cPages);
+#ifdef UTF8_SUPPORT
+                    auto header_text_a = ansi_from_wide(CP_UTF8, text.c_str());
+#else
+                    auto header_text_a = ansi_from_wide(CP932, text.c_str());
+#endif
+                    hpdf_draw_text(page, font, footer_height, header_text_a,
+                                   content_x, content_y + content_height - footer_height,
+                                   content_width, footer_height);
+                    // ヘッダーの分だけページ内容のサイズを縮小する。
+                    content_height -= footer_height;
+                }
 
                 // フッター（ページ番号）を描画する。
-                if (page_numbers)
+                if (page_numbers || footer.size())
                 {
-                    TCHAR footer_text[128];
-                    StringCchPrintf(footer_text, _countof(footer_text),
-                                    doLoadString(IDS_PAGENUMBER), (iPage + 1), cPages);
+                    string_t text = footer;
+                    substitute_tags(text, m_list[iItem], iItem, cItems, iPage, cPages);
 #ifdef UTF8_SUPPORT
-                    auto footer_text_a = ansi_from_wide(CP_UTF8, footer_text);
+                    auto footer_text_a = ansi_from_wide(CP_UTF8, text.c_str());
 #else
-                    auto footer_text_a = ansi_from_wide(CP932, footer_text);
+                    auto footer_text_a = ansi_from_wide(CP932, text.c_str());
 #endif
                     hpdf_draw_text(page, font, footer_height, footer_text_a,
                                    content_x, content_y,
@@ -2143,6 +2209,8 @@ void OnTags(HWND hwnd)
 // コマンド。
 void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
+    static BOOL s_bUpdating = FALSE;
+
     switch (id)
     {
     case IDC_GENERATE: // 「PDF生成」ボタン。
@@ -2188,6 +2256,8 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     case stc8:
     case stc9:
     case stc10:
+    case stc11:
+    case stc12:
         // コンボボックスの前のラベルをクリックしたら、対応するコンボボックスにフォーカスを当てる。
         SetFocus(GetDlgItem(hwnd, cmb1 + (id - stc1)));
         break;
@@ -2203,6 +2273,51 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             break;
         }
         break;
+    case IDC_PAGE_NUMBERS: // 「ページ番号を付ける」チェックボックス。
+        if (s_bUpdating)
+            break;
+        if (codeNotify == BN_CLICKED)
+        {
+            if (::IsDlgButtonChecked(hwnd, IDC_PAGE_NUMBERS) == BST_CHECKED)
+            {
+                // フッターを設定。
+                s_bUpdating = TRUE;
+                setComboText(hwnd, IDC_FOOTER, IDC_FOOTER_DEFAULT);
+                s_bUpdating = FALSE;
+            }
+            else
+            {
+                // フッターを解除。
+                s_bUpdating = TRUE;
+                setComboText(hwnd, IDC_FOOTER, doLoadString(IDS_NOSPEC));
+                s_bUpdating = FALSE;
+            }
+        }
+        break;
+    case IDC_FOOTER: // フッター。
+        if (s_bUpdating)
+            break;
+        switch (codeNotify)
+        {
+        case CBN_EDITCHANGE:
+        case CBN_SELENDOK:
+            {
+                TCHAR szText[512];
+                getComboText(hwnd, IDC_FOOTER, szText, _countof(szText));
+
+                s_bUpdating = TRUE;
+                if (lstrcmpi(szText, doLoadString(IDS_NOSPEC)) == 0)
+                {
+                    CheckDlgButton(hwnd, IDC_PAGE_NUMBERS, BST_UNCHECKED);
+                }
+                else
+                {
+                    CheckDlgButton(hwnd, IDC_PAGE_NUMBERS, BST_CHECKED);
+                }
+                s_bUpdating = FALSE;
+            }
+            break;
+        }
     }
 }
 
