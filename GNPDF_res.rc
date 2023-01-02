@@ -92,9 +92,10 @@ FONT 9, "メイリオ"
     PUSHBUTTON "↓", psh3, 110, 210, 30, 15
     PUSHBUTTON "選択を削除", psh4, 150, 210, 55, 15
     PUSHBUTTON "PDF生成", IDOK, 215, 210, 65, 15
+    PUSHBUTTON "すべて削除", psh7, 275, 190, 60, 15
     PUSHBUTTON "終了", IDCANCEL, 290, 210, 45, 15
     PUSHBUTTON "設定の初期化", psh5, 275, 140, 60, 15
-    CONTROL "", ico1, "STATIC", SS_REALSIZEIMAGE | SS_BITMAP | WS_GROUP, 275, 160, 60, 50
+    CONTROL "", ico1, "STATIC", SS_REALSIZEIMAGE | SS_BITMAP | WS_GROUP, 275, 160, 35, 25
 }
 
 //////////////////////////////////////////////////////////////////////////////

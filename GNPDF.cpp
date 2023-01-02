@@ -1810,22 +1810,23 @@ void OnListSelectionChange(HWND hwnd)
 
     // 必要ならば、アスペクト比を維持したままの縮小後のサイズを計算する。
     BOOL bShrink = FALSE;
-#define SHRINK_SIZE 80
-    if (width > height)
+#define CX_SHRINK 100
+#define CY_SHRINK 60
+    if (CY_SHRINK * width > CX_SHRINK * height)
     {
-        if (width > SHRINK_SIZE)
+        if (width > CX_SHRINK)
         {
-            height = height * SHRINK_SIZE / width;
-            width = SHRINK_SIZE;
+            height = height * CX_SHRINK / width;
+            width = CX_SHRINK;
             bShrink = TRUE;
         }
     }
     else
     {
-        if (height > SHRINK_SIZE)
+        if (height > CY_SHRINK)
         {
-            width = width * SHRINK_SIZE / height;
-            height = SHRINK_SIZE;
+            width = width * CY_SHRINK / height;
+            height = CY_SHRINK;
             bShrink = TRUE;
         }
     }
@@ -2133,6 +2134,19 @@ void OnDelete(HWND hwnd)
     OnListSelectionChange(hwnd);
 }
 
+// 「すべて削除」ボタン。
+void OnDeleteAll(HWND hwnd)
+{
+    // リストボックス。
+    HWND hLst1 = GetDlgItem(hwnd, lst1);
+
+    // すべての項目をクリア。
+    ListBox_ResetContent(hLst1);
+
+    // リストの選択が変化した。
+    OnListSelectionChange(hwnd);
+}
+
 // 「設定の初期化」ボタン。
 void OnEraseSettings(HWND hwnd)
 {
@@ -2246,6 +2260,9 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         break;
     case psh6: // 「特殊タグの説明」ボタン。
         OnTags(hwnd);
+        break;
+    case psh7: // 「すべて削除」ボタン。
+        OnDeleteAll(hwnd);
         break;
     case stc1:
     case stc2:
@@ -2385,7 +2402,7 @@ void OnDropFiles(HWND hwnd, HDROP hdrop)
         TCHAR szFile[MAX_PATH];
         DragQueryFile(hdrop, iFile, szFile, _countof(szFile));
 
-        DoDropFiles(hwnd, hLst1, szFile);
+        added |= DoDropFiles(hwnd, hLst1, szFile);
     }
 
     if (added) // 追加されたなら
