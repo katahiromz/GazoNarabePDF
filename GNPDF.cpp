@@ -360,47 +360,55 @@ BOOL GazoNarabe::LoadFontMap()
     if (FILE *fp = _tfopen(filename, TEXT("rb")))
     {
         // 一行ずつ読み込む。
-        char buf[256];
+        char buf[512];
         while (fgets(buf, _countof(buf), fp))
         {
+            // UTF-8文字列をワイド文字列に変換する。
+            WCHAR szText[512];
+            MultiByteToWideChar(CP_UTF8, 0, buf, -1, szText, _countof(szText));
+
             // 前後の空白を取り除く。
-            StrTrimA(buf, " \t\r\n");
+            str_trim(szText);
 
             // 行コメントを削除する。
-            if (auto pch = strchr(buf, ';'))
+            if (auto pch = wcschr(szText, L';'))
             {
                 *pch = 0;
             }
 
+            // もう一度前後の空白を取り除く。
+            str_trim(szText);
+
             // 「=」を探す。
-            if (auto pch = strchr(buf, '='))
+            if (auto pch = wcschr(szText, L'='))
             {
                 // 文字列を切り分ける。
                 *pch++ = 0;
-                auto utf8_font_name = buf;
-                auto utf8_font_file = pch;
+                auto font_name = szText;
+                auto font_file = pch;
 
                 // 前後の空白を取り除く。
-                StrTrimA(utf8_font_name, " \t\r\n");
-                StrTrimA(utf8_font_file, " \t\r\n");
+                str_trim(font_name);
+                str_trim(font_file);
 
                 // 「,」があればインデックスを読み込み、切り分ける。
-                pch = strchr(pch, ',');
+                pch = wcschr(pch, L',');
                 int index = -1;
                 if (pch)
                 {
                     *pch++ = 0;
-                    index = atoi(pch);
+                    index = _wtoi(pch);
                 }
-                // 切り分けた文字列。
-                string_t font_name = wide_from_ansi(CP_UTF8, utf8_font_name);
-                string_t font_file = wide_from_ansi(CP_UTF8, utf8_font_file);
+
+                // さらに前後の空白を取り除く。
+                str_trim(font_name);
+                str_trim(font_file);
 
                 // フォントファイルのパスファイル名を構築する。
                 TCHAR font_pathname[MAX_PATH];
                 GetWindowsDirectory(font_pathname, _countof(font_pathname));
                 PathAppend(font_pathname, TEXT("Fonts"));
-                PathAppend(font_pathname, font_file.c_str());
+                PathAppend(font_pathname, font_file);
 
                 // パスファイル名が存在するか？
                 if (PathFileExists(font_pathname))
@@ -417,11 +425,9 @@ BOOL GazoNarabe::LoadFontMap()
 
         // ファイルを閉じる。
         fclose(fp);
-
-        return m_font_map.size() > 0;
     }
 
-    return FALSE;
+    return m_font_map.size() > 0;
 }
 
 // コンストラクタ。
