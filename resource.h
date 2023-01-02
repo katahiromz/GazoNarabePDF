@@ -96,6 +96,7 @@
 #define IDS_FOOTER_01                       200
 #define IDS_FOOTER_02                       201
 #define IDS_FOOTER_03                       202
+#define IDS_LOGO                            203
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS

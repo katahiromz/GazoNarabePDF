@@ -1582,9 +1582,9 @@ string_t GazoNarabe::JustDoIt(HWND hwnd)
                 if (!g_shareware.IsRegistered())
                 {
 #ifdef UTF8_SUPPORT
-                    auto logo_a = ansi_from_wide(CP_UTF8, g_szAppName);
+                    auto logo_a = ansi_from_wide(CP_UTF8, doLoadString(IDS_LOGO));
 #else
-                    auto logo_a = ansi_from_wide(CP932, g_szAppName);
+                    auto logo_a = ansi_from_wide(CP932, doLoadString(IDS_LOGO));
 #endif
                     double logo_x = content_x, logo_y = content_y;
 
