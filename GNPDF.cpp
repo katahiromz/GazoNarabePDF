@@ -2322,6 +2322,51 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     }
 }
 
+// ドロップ項目を処理する。
+BOOL DoDropFiles(HWND hwnd, HWND hLst1, LPCTSTR szFile)
+{
+    if (!PathIsDirectory(szFile)) // フォルダでなければ
+    {
+        // 画像ファイルとして有効な拡張子のみ、追加。
+        if (!isValidImageFile(szFile))
+            return FALSE;
+
+        // リストボックスに項目を追加する。
+        ListBox_AddString(hLst1, szFile);
+        return TRUE;
+    }
+
+    // フォルダ内を列挙する準備をする。
+    TCHAR szPath[MAX_PATH];
+    GetFullPathName(szFile, _countof(szPath), szPath, NULL);
+    PathAppend(szPath, TEXT("*"));
+    WIN32_FIND_DATA find;
+    HANDLE hFind = FindFirstFile(szPath, &find);
+    PathRemoveFileSpec(szPath);
+    if (hFind == INVALID_HANDLE_VALUE)
+        return FALSE;
+
+    // フォルダの中身を列挙する。
+    BOOL bAdded = FALSE;
+    do
+    {
+        // "." と ".." は無視する。
+        if (lstrcmp(find.cFileName, TEXT(".")) == 0 ||
+            lstrcmp(find.cFileName, TEXT("..")) == 0)
+        {
+            continue;
+        }
+
+        // 再帰する。
+        PathAppend(szPath, find.cFileName);
+        bAdded |= DoDropFiles(hwnd, hLst1, szPath);
+        PathRemoveFileSpec(szPath);
+    } while (FindNextFile(hFind, &find));
+    FindClose(hFind);
+
+    return bAdded;
+}
+
 // WM_DROPFILES
 // ファイルがドロップされた。
 void OnDropFiles(HWND hwnd, HDROP hdrop)
@@ -2340,14 +2385,7 @@ void OnDropFiles(HWND hwnd, HDROP hdrop)
         TCHAR szFile[MAX_PATH];
         DragQueryFile(hdrop, iFile, szFile, _countof(szFile));
 
-        // 画像ファイルとして有効な拡張子のみ、追加。
-        if (isValidImageFile(szFile))
-        {
-            // リストボックスに項目を追加する。
-            ListBox_AddString(hLst1, szFile);
-
-            added = TRUE; // 追加された。
-        }
+        DoDropFiles(hwnd, hLst1, szFile);
     }
 
     if (added) // 追加されたなら
