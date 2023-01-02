@@ -136,6 +136,12 @@ LPTSTR doLoadString(INT nID)
     return s_szText;
 }
 
+// 文字列の前後の空白を削除する。
+void str_trim(LPWSTR text)
+{
+    StrTrimW(text, L" \t\r\n\x3000");
+}
+
 // ローカルのファイルのパス名を取得する。
 LPCTSTR findLocalFile(LPCTSTR filename)
 {
@@ -372,6 +378,10 @@ BOOL GazoNarabe::LoadFontMap()
                 auto utf8_font_name = buf;
                 auto utf8_font_file = pch;
 
+                // 前後の空白を取り除く。
+                StrTrimA(utf8_font_name, " \t\r\n");
+                StrTrimA(utf8_font_file, " \t\r\n");
+
                 // 「,」があればインデックスを読み込み、切り分ける。
                 pch = strchr(pch, ',');
                 int index = -1;
@@ -548,7 +558,7 @@ BOOL GazoNarabe::DataFromDialog(HWND hwnd, BOOL bList)
     // コンボボックスからデータを取得する。
 #define GET_COMBO_DATA(id) do { \
     getComboText(hwnd, (id), szText, _countof(szText)); \
-    StrTrim(szText, TEXT(" \t\r\n")); \
+    str_trim(szText); \
     m_settings[TEXT(#id)] = szText; \
 } while (0)
     GET_COMBO_DATA(IDC_PAGE_SIZE);
