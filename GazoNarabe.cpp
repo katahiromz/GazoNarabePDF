@@ -31,7 +31,7 @@
         "e218f83f070a186f886c6dc82bd7ecf3d6c3ea4224fd7d213aa06e9c9713b395",
         /* trial days */                10,
         /* salt string */               "mJpDxx2D",
-        /* version string */            "0.9.5");
+        /* version string */            "0.9.6");
 #endif
 
 #define UTF8_SUPPORT // UTF-8サポート。
@@ -1709,7 +1709,7 @@ void OnListSelectionChange(HWND hwnd)
     EnableWindow(GetDlgItem(hwnd, IDC_DELETE), TRUE);
 
     // 最初の選択のテキストを取得する。
-    INT iItem;
+    INT iItem = LB_ERR;
     TCHAR szPath[MAX_PATH];
     ListBox_GetSelItems(hLst1, 1, &iItem);
     ListBox_GetText(hLst1, iItem, szPath);
@@ -2075,8 +2075,8 @@ void OnEraseSettings(HWND hwnd)
     OnListSelectionChange(hwnd);
 }
 
-// リストがダブルクリックされた。
-void OnListDoubleClick(HWND hwnd)
+// リストの項目を開く。
+void OnListItemOpen(HWND hwnd)
 {
     // リストボックス。
     HWND hLst1 = GetDlgItem(hwnd, lst1);
@@ -2085,19 +2085,39 @@ void OnListDoubleClick(HWND hwnd)
     if (cSelected == LB_ERR || cSelected == 0)
         return; // 選択項目がない。
 
-    // 選択項目を取得する。
-    std::vector<INT> items;
-    items.resize(cSelected);
-    ListBox_GetSelItems(hLst1, cSelected, &items[0]);
-
-    // リスト項目からテキストを取得し、それをコマンドラインとして開く。
+    // 最初の選択項目のテキストを取得する。
+    INT iItem = LB_ERR;
+    ListBox_GetSelItems(hLst1, 1, &iItem);
     TCHAR szPath[MAX_PATH];
-    for (size_t i = items.size() - 1; i < items.size(); --i)
-    {
-        INT iItem = items[i];
-        ListBox_GetText(hLst1, iItem, szPath);
-        ShellExecute(hwnd, NULL, szPath, NULL, NULL, SW_SHOWNORMAL);
-    }
+    ListBox_GetText(hLst1, iItem, szPath);
+
+    // テキストをコマンドラインとして開く。
+    ShellExecute(hwnd, NULL, szPath, NULL, NULL, SW_SHOWNORMAL);
+}
+
+// リストの項目のプロパティを開く
+void OnListProp(HWND hwnd)
+{
+    // リストボックス。
+    HWND hLst1 = GetDlgItem(hwnd, lst1);
+
+    INT cSelected = ListBox_GetSelCount(hLst1);
+    if (cSelected == LB_ERR || cSelected == 0)
+        return; // 選択項目がない。
+
+    // 最初の選択項目のテキストを取得する。
+    INT iItem = LB_ERR;
+    ListBox_GetSelItems(hLst1, 1, &iItem);
+    TCHAR szPath[MAX_PATH];
+    ListBox_GetText(hLst1, iItem, szPath);
+
+    // ファイルのプロパティを開く。
+    SHELLEXECUTEINFO info = { sizeof(info) };
+    info.lpFile = szPath;
+    info.nShow = SW_SHOWNORMAL;
+    info.fMask = SEE_MASK_INVOKEIDLIST;
+    info.lpVerb = TEXT("properties");
+    ShellExecuteEx(&info);
 }
 
 // 「特殊タグの説明」ボタン。
@@ -2136,6 +2156,15 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     case IDC_ERASESETTINGS: // 「設定の初期化」ボタン。
         OnEraseSettings(hwnd);
         break;
+    case IDC_MENU_OPEN: // 開く。
+        OnListItemOpen(hwnd);
+        break;
+    case IDC_MENU_DELETE: // 選択を削除。
+        OnDelete(hwnd);
+        break;
+    case IDC_MENU_PROP: // プロパティ。
+        OnListProp(hwnd);
+        break;
     case psh6: // 「特殊タグの説明」ボタン。
         OnTags(hwnd);
         break;
@@ -2155,7 +2184,7 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     case lst1:
         if (codeNotify == LBN_DBLCLK) // リストがダブルクリックされた。
         {
-            OnListDoubleClick(hwnd);
+            OnListItemOpen(hwnd);
             break;
         }
         if (codeNotify == LBN_SELCHANGE) // リストの選択が変化した。
@@ -2222,18 +2251,98 @@ void OnDropFiles(HWND hwnd, HDROP hdrop)
 // リストボックスでキーが押された。
 int OnVkeyToItem(HWND hwnd, UINT vk, HWND hwndListbox, int iCaret)
 {
+    // リストボックス。
     HWND hLst1 = GetDlgItem(hwnd, lst1);
-    if (hLst1 != hwndListbox)
+    if (hLst1 != hwndListbox) // 対象コントロールの確認。
         return -1; // 既定のアクションを行う。
 
-    if (vk == VK_DELETE) // Delキーだった。
+    switch (vk) // 仮想キーコードに応じて処理を行う。
     {
-        // 削除する。
+    case VK_DELETE: // 「Del」キー。
+        // 選択項目を削除する。
         OnDelete(hwnd);
         return -2; // さらなるアクションはしない。
+    case L'A': // 「A」キー。
+        if (::GetKeyState(VK_CONTROL) < 0) // Ctrlキーが押されているか？
+        {
+            // Ctrl+Aだった。すべて選択。
+            INT iItem, cItems = ListBox_GetCount(hLst1);
+            for (iItem = 0; iItem < cItems; ++iItem)
+            {
+                ListBox_SetSel(hLst1, TRUE, iItem);
+            }
+            return -2; // さらなるアクションはしない。
+        }
+        break;
+    case L'U': // 「U」キー。
+        if (::GetKeyState(VK_CONTROL) < 0) // Ctrlキーが押されているか？
+        {
+            // Ctrl+Uだった。一つ上へ移動。
+            OnUp(hwnd);
+            return -2; // さらなるアクションはしない。
+        }
+        break;
+    case L'D': // 「D」キー。
+        if (::GetKeyState(VK_CONTROL) < 0) // Ctrlキーが押されているか？
+        {
+            // Ctrl+Dだった。一つ下へ移動。
+            OnDown(hwnd);
+            return -2; // さらなるアクションはしない。
+        }
+        break;
     }
 
     return -1; // 既定のアクションを行う。
+}
+
+// WM_CONTEXTMENU
+// コンテキストメニューを開く。
+void OnContextMenu(HWND hwnd, HWND hwndContext, UINT xPos, UINT yPos)
+{
+    // リストボックス。
+    HWND hLst1 = ::GetDlgItem(hwnd, lst1);
+
+    // リストボックスのコンテキストメニューでなければ無視。
+    if (hLst1 != hwndContext)
+        return;
+
+    if (xPos == 0xFFFF && yPos == 0xFFFF) // キーボードからメニューが開かれたか？
+    {
+        // メニューの位置をリストボックスに合わせる。
+        RECT rc;
+        ::GetWindowRect(hLst1, &rc);
+        xPos = rc.left;
+        yPos = rc.top;
+    }
+
+    // メニューを読み込む。
+    HMENU hMenu = ::LoadMenu(g_hInstance, MAKEINTRESOURCE(1));
+
+    // 選択項目があるか？
+    BOOL bHasSelection = (ListBox_GetSelCount(hLst1) > 0);
+
+    // 選択状態に応じてサブメニューを選ぶ。
+    HMENU hPopupMenu = ::GetSubMenu(hMenu, (bHasSelection ? 0 : 1));
+    if (bHasSelection)
+    {
+        // 「開く」項目を太字に。
+        MENUITEMINFO info = { sizeof(info), MIIM_STATE };
+        ::GetMenuItemInfo(hPopupMenu, IDC_MENU_OPEN, FALSE, &info);
+        info.fState |= MFS_DEFAULT;
+        ::SetMenuItemInfo(hPopupMenu, IDC_MENU_OPEN, FALSE, &info);
+    }
+
+    // メニューを表示してユーザーからの選択を待つ。
+    ::SetForegroundWindow(hwnd); // TrackPopupMenuのバグ回避。
+    INT id = ::TrackPopupMenu(hPopupMenu, TPM_RETURNCMD | TPM_RIGHTBUTTON,
+                              xPos, yPos, 0, hwnd, NULL);
+    ::PostMessage(hwnd, WM_NULL, 0, 0); // TrackPopupMenuのバグ回避。
+
+    // 選択項目が有効ならばWM_COMMANDメッセージを投函する。
+    if (id != 0 && id != -1)
+    {
+        ::PostMessage(hwnd, WM_COMMAND, id, 0);
+    }
 }
 
 // WM_DESTROY
@@ -2259,6 +2368,7 @@ DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(hwnd, WM_COMMAND, OnCommand);
         HANDLE_MSG(hwnd, WM_DROPFILES, OnDropFiles);
         HANDLE_MSG(hwnd, WM_VKEYTOITEM, OnVkeyToItem);
+        HANDLE_MSG(hwnd, WM_CONTEXTMENU, OnContextMenu);
         HANDLE_MSG(hwnd, WM_DESTROY, OnDestroy);
     }
     return 0;
