@@ -196,6 +196,7 @@ STRINGTABLE
     IDS_TAG_YEAR, "<年>"
     IDS_TAG_MONTH, "<月>"
     IDS_TAG_DAY, "<日>"
+    IDS_TAG_FILENAME_WO_EXTENSION, "<拡張子なしファイル名>"
     IDS_DATEFORMAT, "%04u年%02u月%02u日"
     IDS_TIMEFORMAT, "%02u時%02u分%02u秒"
     IDS_COPYFILEFAILED, "デスクトップへのファイルのコピーに失敗しました"

@@ -1070,17 +1070,24 @@ bool substitute_tags(string_t& str, const string_t& pathname,
     LPCTSTR filename = PathFindFileName(pathname.c_str());
     LPCTSTR shortname = PathFindFileName(shortpathname);
 
+    // 拡張子なしファイル名。
+    TCHAR filename_wo_extension[MAX_PATH];
+    StringCchCopy(filename_wo_extension, _countof(filename_wo_extension), filename);
+    PathRemoveExtension(filename_wo_extension);
+
     // ファイル名に関してタグを置き換える。
     if (is_output)
     {
         str_replace(str, L"<pathname>", L"(ERR)");
         str_replace(str, L"<filename>", L"(ERR)");
+        str_replace(str, L"<filename-wo-extension>", L"(ERR)");
         str_replace(str, L"<short-name>", L"(ERR)");
     }
     else
     {
         str_replace(str, L"<pathname>", pathname.c_str());
         str_replace(str, L"<filename>", filename);
+        str_replace(str, L"<filename-wo-extension>", filename_wo_extension);
         str_replace(str, L"<short-name>", shortname);
     }
 
@@ -1126,12 +1133,14 @@ bool substitute_tags(string_t& str, const string_t& pathname,
     {
         str_replace(str, doLoadString(IDS_TAG_PATHNAME), L"(ERR)");
         str_replace(str, doLoadString(IDS_TAG_FILENAME), L"(ERR)");
+        str_replace(str, doLoadString(IDS_TAG_FILENAME_WO_EXTENSION), L"(ERR)");
         str_replace(str, doLoadString(IDS_TAG_SHORTNAME), L"(ERR)");
     }
     else
     {
         str_replace(str, doLoadString(IDS_TAG_PATHNAME), pathname.c_str());
         str_replace(str, doLoadString(IDS_TAG_FILENAME), filename);
+        str_replace(str, doLoadString(IDS_TAG_FILENAME_WO_EXTENSION), filename_wo_extension);
         str_replace(str, doLoadString(IDS_TAG_SHORTNAME), shortname);
     }
 

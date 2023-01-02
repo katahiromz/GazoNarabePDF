@@ -6,6 +6,7 @@
 
 - <pathname> : 画像のパスファイル名。
 - <filename> : 画像のファイル名。
+- <filename-wo-extension> : 拡張子を取り除いたファイル名。
 - <short-name> : 画像の短いファイル名。
 - <image-no> : 画像連番。1から始まる。
 - <image-total> : 画像総数。
@@ -33,6 +34,7 @@
 
 - <パスファイル名> : 画像のパスファイル名。<pathname>と同じ。
 - <ファイル名> : 画像のファイル名。<filename>と同じ。
+- <拡張子なしファイル名> : 拡張子を取り除いたファイル名。<filename-wo-extension>と同じ。
 - <短縮名> : 画像の短いファイル名。<short-name>と同じ。
 - <画像番号> : 画像連番。1から始まる。<image-no>と同じ。
 - <画像総数> : 画像総数。<image-total>と同じ。
