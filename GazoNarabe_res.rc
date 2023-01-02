@@ -53,7 +53,7 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 // RT_DIALOG
 
 1 DIALOG 0, 0, 340, 210
-CAPTION "ガゾーナラベPDF Ver. 0.9.6"
+CAPTION "ガゾーナラベPDF Ver. 0.9.7"
 STYLE DS_CENTER | DS_MODALFRAME | WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX
 FONT 9, "メイリオ"
 {
@@ -97,8 +97,8 @@ FONT 9, "メイリオ"
 // RT_VERSION
 
 1 VERSIONINFO
-FILEVERSION     0, 9, 6, 0
-PRODUCTVERSION  0, 9, 6, 0
+FILEVERSION     0, 9, 7, 0
+PRODUCTVERSION  0, 9, 7, 0
 FILEOS          0x40004
 FILETYPE        0x1
 {
@@ -108,10 +108,10 @@ FILETYPE        0x1
         {
             VALUE "CompanyName", "Katayama Hirofumi MZ\0"
             VALUE "FileDescription", "画像を並べてPDF作成\0"
-            VALUE "FileVersion", "0.9.6\0"
+            VALUE "FileVersion", "0.9.7\0"
             VALUE "LegalCopyright", "(c) 2022 katahiromz\0"
             VALUE "ProductName", "ガゾーナラベPDF\0"
-            VALUE "ProductVersion", "0.9.6\0"
+            VALUE "ProductVersion", "0.9.7\0"
         }
     }
     BLOCK "VarFileInfo"
