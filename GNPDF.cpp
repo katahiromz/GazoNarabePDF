@@ -570,6 +570,7 @@ void GazoNarabe::InitDialog(HWND hwnd)
     SendDlgItemMessage(hwnd, IDC_OUTPUT_NAME, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_OUTPUT_05));
     SendDlgItemMessage(hwnd, IDC_OUTPUT_NAME, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_OUTPUT_06));
     SendDlgItemMessage(hwnd, IDC_OUTPUT_NAME, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_OUTPUT_07));
+    SendDlgItemMessage(hwnd, IDC_OUTPUT_NAME, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_OUTPUT_08));
 
     // IDC_HEADER: ヘッダー。
     SendDlgItemMessage(hwnd, IDC_HEADER, CB_ADDSTRING, 0, (LPARAM)doLoadString(IDS_NOSPEC));
