@@ -217,7 +217,7 @@ STRINGTABLE
     IDS_HEADER_02, "画像一覧"
     IDS_HEADER_03, "証拠品（画像ファイル）一覧"
     IDS_FOOTER_01, "Page <page-no> / <page-total>"
-    IDS_FOOTER_02, "ページ <page-no> / <page-total>"
+    IDS_FOOTER_02, "ページ <ページ番号> / <ページ総数>"
     IDS_FOOTER_03, "<page-no> / <page-total>"
 }
 
