@@ -100,6 +100,10 @@
 #define IDS_LOGO                            204
 #define IDS_TAG_PAGE_SIZE                   205
 #define IDS_TAG_PAGE_DIRECTION              206
+#define IDS_TAG_DAY_OF_WEEK                 207
+#define IDS_TAG_DAY_OF_WEEK_SHOOT           208
+#define IDS_TAG_DAY_OF_WEEK_MODIFIED        209
+#define IDS_DAY_OF_WEEK_LIST                210
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS
