@@ -1035,6 +1035,12 @@ bool GazoNarabe::SubstituteTags(HWND hwnd, string_t& str, const string_t& pathna
     ::FileTimeToSystemTime(&ftCreated, &stCreated);
     ::FileTimeToSystemTime(&ftModified, &stModified);
 
+    // 曜日リスト。
+    static const LPCWSTR day_of_week_list_eng[] =
+    {
+        L"Sun", L"Mon", L"Tue", L"Wed", L"Thu", L"Fri", L"Sat"
+    };
+
     // 現在の日時を文字列にする。
     TCHAR now_date[64];
     TCHAR now_time[64];
@@ -1111,16 +1117,19 @@ bool GazoNarabe::SubstituteTags(HWND hwnd, string_t& str, const string_t& pathna
     str_replace(str, L"<day>", std::to_wstring(stNow.wDay).c_str());
     str_replace(str, L"<today>", now_date);
     str_replace(str, L"<now>", now_datetime);
+    str_replace(str, L"<day-of-week>", day_of_week_list_eng[stNow.wDayOfWeek]);
 
     // 撮影日時に関してタグを置き換える。
     str_replace(str, L"<date-shoot>", created_date);
     str_replace(str, L"<time-shoot>", created_time);
     str_replace(str, L"<datetime-shoot>", created_datetime);
+    str_replace(str, L"<day-of-week-shoot>", day_of_week_list_eng[stCreated.wDayOfWeek]);
 
     // 更新日時に関してタグを置き換える。
     str_replace(str, L"<date-modified>", created_date);
     str_replace(str, L"<time-modified>", created_time);
     str_replace(str, L"<datetime-modified>", created_datetime);
+    str_replace(str, L"<day-of-week-modified>", day_of_week_list_eng[stModified.wDayOfWeek]);
 
     // 画像の幅・高さ・ファイルサイズに関してタグを置き換える。
     str_replace(str, L"<width>", std::to_wstring(image_width).c_str());
@@ -1155,12 +1164,12 @@ bool GazoNarabe::SubstituteTags(HWND hwnd, string_t& str, const string_t& pathna
 
     // 曜日リストを作成。
     string_t day_of_week_string = doLoadString(IDS_DAY_OF_WEEK_LIST);
-    std::vector<string_t> day_of_week_list;
+    std::vector<string_t> day_of_week_list_jpn;
     for (auto& ch : day_of_week_string)
     {
         string_t item;
         item += ch;
-        day_of_week_list.push_back(item);
+        day_of_week_list_jpn.push_back(item);
     }
 
     // ファイル名に関してタグを置き換える。
@@ -1200,7 +1209,7 @@ bool GazoNarabe::SubstituteTags(HWND hwnd, string_t& str, const string_t& pathna
     str_replace(str, doLoadString(IDS_TAG_DAY), std::to_wstring(stNow.wDay).c_str());
     str_replace(str, doLoadString(IDS_TAG_TODAY), now_date);
     str_replace(str, doLoadString(IDS_TAG_NOW), now_datetime);
-    str_replace(str, doLoadString(IDS_TAG_DAY_OF_WEEK), day_of_week_list[stNow.wDayOfWeek].c_str());
+    str_replace(str, doLoadString(IDS_TAG_DAY_OF_WEEK), day_of_week_list_jpn[stNow.wDayOfWeek].c_str());
 
     // 撮影日時に関してタグを置き換える。
     StringCchPrintf(created_date, _countof(created_date), doLoadString(IDS_DATEFORMAT), stCreated.wYear, stCreated.wMonth, stCreated.wDay);
@@ -1210,7 +1219,7 @@ bool GazoNarabe::SubstituteTags(HWND hwnd, string_t& str, const string_t& pathna
     str_replace(str, doLoadString(IDS_TAG_DATE_SHOOT), created_date);
     str_replace(str, doLoadString(IDS_TAG_TIME_SHOOT), created_time);
     str_replace(str, doLoadString(IDS_TAG_DATETIME_SHOOT), created_datetime);
-    str_replace(str, doLoadString(IDS_TAG_DAY_OF_WEEK_SHOOT), day_of_week_list[stCreated.wDayOfWeek].c_str());
+    str_replace(str, doLoadString(IDS_TAG_DAY_OF_WEEK_SHOOT), day_of_week_list_jpn[stCreated.wDayOfWeek].c_str());
 
     // 更新日時に関してタグを置き換える。
     StringCchPrintf(modified_date, _countof(modified_date), doLoadString(IDS_DATEFORMAT), stModified.wYear, stModified.wMonth, stModified.wDay);
@@ -1220,7 +1229,7 @@ bool GazoNarabe::SubstituteTags(HWND hwnd, string_t& str, const string_t& pathna
     str_replace(str, doLoadString(IDS_TAG_DATE_MODIFIED), modified_date);
     str_replace(str, doLoadString(IDS_TAG_TIME_MODIFIED), modified_time);
     str_replace(str, doLoadString(IDS_TAG_DATETIME_MODIFIED), modified_datetime);
-    str_replace(str, doLoadString(IDS_TAG_DAY_OF_WEEK_MODIFIED), day_of_week_list[stModified.wDayOfWeek].c_str());
+    str_replace(str, doLoadString(IDS_TAG_DAY_OF_WEEK_MODIFIED), day_of_week_list_jpn[stModified.wDayOfWeek].c_str());
 
     // 画像の幅・高さ・ファイルサイズに関してタグを置き換える。
     str_replace(str, doLoadString(IDS_TAG_WIDTH), std::to_wstring(image_width).c_str());

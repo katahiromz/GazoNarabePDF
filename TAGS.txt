@@ -18,14 +18,17 @@
 - <year> : 現在の西暦年。
 - <month> : 現在の月。1～2桁。
 - <day> : 現在の日。1～2桁。
+- <day-of-week> : 現在の曜日。「Sun」「Mon」「Tue」「Wed」「Thu」「Fri」「Sat」のいずれか。
 - <now> : <datetime>と同じ。
 - <today> : <date>と同じ。
 - <date-shoot> : 「YYYY-MM-DD」形式の撮影日付。EXIF情報から撮影日時が取得できないときはファイル作成日時を使用する。
 - <time-shoot> : 「HH:MM:SS」形式の撮影時刻。
 - <datetime-shoot> : 「YYYY-MM-DD HH:MM:SS」形式の撮影日時。
+- <day-of-week-shoot> : 撮影日の曜日。「Sun」「Mon」「Tue」「Wed」「Thu」「Fri」「Sat」のいずれか。
 - <date-modified> : 「YYYY-MM-DD」形式のファイル変更日付。
 - <time-modified> : 「HH:MM:SS」形式のファイル変更時刻。
 - <datetime-modified> : 「YYYY-MM-DD HH:MM:SS」形式のファイル変更日時。
+- <day-of-week-modified> : ファイル更新日の曜日。「Sun」「Mon」「Tue」「Wed」「Thu」「Fri」「Sat」のいずれか。
 - <width> : 画像の幅（ピクセル単位）。
 - <height> : 画像の高さ（ピクセル単位）。
 - <file-size> : 画像のファイルサイズ。
