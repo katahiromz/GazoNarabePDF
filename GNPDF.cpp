@@ -118,6 +118,9 @@ public:
     BOOL DataFromReg(HWND hwnd);
     // データからレジストリへ。
     BOOL RegFromData(HWND hwnd);
+    // タグを置き換える。
+    bool SubstituteTags(HWND hwnd, string_t& str, const string_t& pathname,
+                        INT iImage, INT cImages, INT iPage, INT cPages, bool is_output);
 
     // メインディッシュ処理。
     string_t JustDoIt(HWND hwnd);
@@ -1006,9 +1009,9 @@ void str_lowercase_tags(string_t& str)
     }
 }
 
-// 特殊タグを規則に従って置き換える。
-bool substitute_tags(string_t& str, const string_t& pathname,
-                     INT iImage, INT cImages, INT iPage, INT cPages, bool is_output = false)
+// タグを置き換える。
+bool GazoNarabe::SubstituteTags(HWND hwnd, string_t& str, const string_t& pathname,
+                                INT iImage, INT cImages, INT iPage, INT cPages, bool is_output)
 {
     // タグ内を小文字にする。
     str_lowercase_tags(str);
@@ -1124,6 +1127,28 @@ bool substitute_tags(string_t& str, const string_t& pathname,
     str_replace(str, L"<height>", std::to_wstring(image_height).c_str());
     str_replace(str, L"<file-size>", std::to_wstring(file_size).c_str());
 
+    // 用紙サイズに関してタグを置き換える。
+    if (SETTING(IDC_PAGE_SIZE) == doLoadString(IDS_A3))
+        str_replace(str, L"<paper-size>", L"A3");
+    else if (SETTING(IDC_PAGE_SIZE) == doLoadString(IDS_A4))
+        str_replace(str, L"<paper-size>", L"A4");
+    else if (SETTING(IDC_PAGE_SIZE) == doLoadString(IDS_A5))
+        str_replace(str, L"<paper-size>", L"A5");
+    else if (SETTING(IDC_PAGE_SIZE) == doLoadString(IDS_B4))
+        str_replace(str, L"<paper-size>", L"B4");
+    else if (SETTING(IDC_PAGE_SIZE) == doLoadString(IDS_B5))
+        str_replace(str, L"<paper-size>", L"B5");
+    else
+        str_replace(str, L"<paper-size>", L"A4");
+
+    // ページの向きに関してタグを置き換える。
+    if (SETTING(IDC_PAGE_DIRECTION) == doLoadString(IDS_PORTRAIT))
+        str_replace(str, L"<page-direction>", L"Portrait");
+    else if (SETTING(IDC_PAGE_DIRECTION) == doLoadString(IDS_LANDSCAPE))
+        str_replace(str, L"<page-direction>", L"Landscape");
+    else
+        str_replace(str, L"<page-direction>", L"Landscape");
+
     //
     // Japanese special
     //
@@ -1189,10 +1214,44 @@ bool substitute_tags(string_t& str, const string_t& pathname,
     str_replace(str, doLoadString(IDS_TAG_HEIGHT), std::to_wstring(image_height).c_str());
     str_replace(str, doLoadString(IDS_TAG_FILESIZE), std::to_wstring(file_size).c_str());
 
+    // 用紙サイズに関してタグを置き換える。
+    string_t page_size = doLoadString(IDS_TAG_PAGE_SIZE);
+    if (SETTING(IDC_PAGE_SIZE) == doLoadString(IDS_A3))
+        str_replace(str, page_size.c_str(), L"A3");
+    else if (SETTING(IDC_PAGE_SIZE) == doLoadString(IDS_A4))
+        str_replace(str, page_size.c_str(), L"A4");
+    else if (SETTING(IDC_PAGE_SIZE) == doLoadString(IDS_A5))
+        str_replace(str, page_size.c_str(), L"A5");
+    else if (SETTING(IDC_PAGE_SIZE) == doLoadString(IDS_B4))
+        str_replace(str, page_size.c_str(), L"B4");
+    else if (SETTING(IDC_PAGE_SIZE) == doLoadString(IDS_B5))
+        str_replace(str, page_size.c_str(), L"B5");
+    else
+        str_replace(str, page_size.c_str(), L"A4");
+
+    // ページの向きに関してタグを置き換える。
+    string_t page_direction = doLoadString(IDS_TAG_PAGE_DIRECTION);
+    if (SETTING(IDC_PAGE_DIRECTION) == doLoadString(IDS_PORTRAIT))
+        str_replace(str, page_direction.c_str(), doLoadString(IDS_PORTRAIT));
+    else if (SETTING(IDC_PAGE_DIRECTION) == doLoadString(IDS_LANDSCAPE))
+        str_replace(str, page_direction.c_str(), doLoadString(IDS_LANDSCAPE));
+    else
+        str_replace(str, page_direction.c_str(), doLoadString(IDS_LANDSCAPE));
+
     // その他のタグを「(ERR)」に置き換える。
     str_replace_tag_error(str);
 
     return true;
+}
+
+// 特殊タグを規則に従って置き換える。
+bool substitute_tags(HWND hwnd, string_t& str, const string_t& pathname,
+                     INT iImage, INT cImages, INT iPage, INT cPages, bool is_output = false)
+{
+    // ユーザーデータ。
+    GazoNarabe* pGN = (GazoNarabe*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+
+    return pGN->SubstituteTags(hwnd, str, pathname, iImage, cImages, iPage, cPages, is_output);
 }
 
 // libHaruのエラーハンドラの実装。
@@ -1612,7 +1671,7 @@ string_t GazoNarabe::JustDoIt(HWND hwnd)
                 if (header.size())
                 {
                     string_t text = header;
-                    substitute_tags(text, m_list[iItem], iItem, cItems, iPage, cPages);
+                    substitute_tags(hwnd, text, m_list[iItem], iItem, cItems, iPage, cPages);
 #ifdef UTF8_SUPPORT
                     auto header_text_a = ansi_from_wide(CP_UTF8, text.c_str());
 #else
@@ -1629,7 +1688,7 @@ string_t GazoNarabe::JustDoIt(HWND hwnd)
                 if (page_numbers || footer.size())
                 {
                     string_t text = footer;
-                    substitute_tags(text, m_list[iItem], iItem, cItems, iPage, cPages);
+                    substitute_tags(hwnd, text, m_list[iItem], iItem, cItems, iPage, cPages);
 #ifdef UTF8_SUPPORT
                     auto footer_text_a = ansi_from_wide(CP_UTF8, text.c_str());
 #else
@@ -1673,7 +1732,7 @@ string_t GazoNarabe::JustDoIt(HWND hwnd)
             {
                 // タグを規則に従って置き換える。
                 string_t text = image_title;
-                substitute_tags(text, m_list[iItem], iItem, cItems, iPage, cPages);
+                substitute_tags(hwnd, text, m_list[iItem], iItem, cItems, iPage, cPages);
 
                 // ANSI文字列に変換してテキストを描画する。
 #ifdef UTF8_SUPPORT
@@ -1709,7 +1768,7 @@ string_t GazoNarabe::JustDoIt(HWND hwnd)
         {
             // 出力ファイル名のタグを置き換える。
             string_t text = output_name;
-            substitute_tags(text, m_list[0], 0, cItems, 0, cPages, true);
+            substitute_tags(hwnd, text, m_list[0], 0, cItems, 0, cPages, true);
 
             // ファイル名に使えない文字を置き換える。
             validate_filename(text);

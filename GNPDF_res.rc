@@ -221,6 +221,8 @@ STRINGTABLE
     IDS_FOOTER_02, "ページ <ページ番号> / <ページ総数>"
     IDS_FOOTER_03, "<page-no> / <page-total>"
     IDS_LOGO, "「ガゾーナラベPDF」買ってね"
+    IDS_TAG_PAGE_SIZE, "<用紙サイズ>"
+    IDS_TAG_PAGE_DIRECTION, "<ページの向き>"
 }
 
 //////////////////////////////////////////////////////////////////////////////

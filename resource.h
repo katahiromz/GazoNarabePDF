@@ -98,6 +98,8 @@
 #define IDS_FOOTER_02                       202
 #define IDS_FOOTER_03                       203
 #define IDS_LOGO                            204
+#define IDS_TAG_PAGE_SIZE                   205
+#define IDS_TAG_PAGE_DIRECTION              206
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS
