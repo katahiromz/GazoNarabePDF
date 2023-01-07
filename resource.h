@@ -104,6 +104,7 @@
 #define IDS_TAG_DAY_OF_WEEK_SHOOT           208
 #define IDS_TAG_DAY_OF_WEEK_MODIFIED        209
 #define IDS_DAY_OF_WEEK_LIST                210
+#define IDS_FIELD_FONT_NAME                 211
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS

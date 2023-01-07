@@ -688,14 +688,18 @@ BOOL GazoNarabe::DataFromDialog(HWND hwnd, BOOL bList)
         font_size = szText;
     }
     // 出力ファイル名。空ではありません。
+    if (SETTING(IDC_OUTPUT_NAME).empty())
     {
-        auto& output_name = SETTING(IDC_OUTPUT_NAME);
-        if (output_name.empty())
-        {
-            OnInvalidString(hwnd, IDC_OUTPUT_NAME, IDS_FIELD_OUTPUT_NAME, IDS_REASON_NON_EMPTY_STRING);
-            SETTING(IDC_OUTPUT_NAME) = IDC_OUTPUT_NAME_DEFAULT;
-            return FALSE;
-        }
+        OnInvalidString(hwnd, IDC_OUTPUT_NAME, IDS_FIELD_OUTPUT_NAME, IDS_REASON_NON_EMPTY_STRING);
+        SETTING(IDC_OUTPUT_NAME) = IDC_OUTPUT_NAME_DEFAULT;
+        return FALSE;
+    }
+    // フォント名。空ではありません。
+    if (SETTING(IDC_FONT_NAME).empty())
+    {
+        OnInvalidString(hwnd, IDC_FONT_NAME, IDS_FIELD_FONT_NAME, IDS_REASON_NON_EMPTY_STRING);
+        SETTING(IDC_FONT_NAME) = IDC_FONT_NAME_DEFAULT;
+        return FALSE;
     }
 
     // リストボックスからデータを取得する。

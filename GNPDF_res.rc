@@ -227,6 +227,7 @@ STRINGTABLE
     IDS_TAG_DAY_OF_WEEK_SHOOT, "<撮影曜日>"
     IDS_TAG_DAY_OF_WEEK_MODIFIED, "<更新曜日>"
     IDS_DAY_OF_WEEK_LIST, "日月火水木金土"
+    IDS_FIELD_FONT_NAME, "フォント名"
 }
 
 //////////////////////////////////////////////////////////////////////////////
